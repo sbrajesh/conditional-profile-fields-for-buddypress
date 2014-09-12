@@ -267,18 +267,11 @@ class Devb_Conditional_Profile_admin{
         }
     }
     
-    public function load_admin_js() {
-        
-      
-                
-        if( !$this->is_admin() )
-            return;
-        
-        wp_enqueue_script( 'bp-conditional-profile-admin-js', $this->url . 'assets/bp-conditional-field-admin.js' , array( 'jquery' ) );
-        
-        
-    }
-    
+	/**
+	 * Converts Fields info to js object and prints to xpfields
+	 * 
+	 * @return type
+	 */
     public function to_js_objects() {
         
         if( !$this->is_admin() )
@@ -291,6 +284,29 @@ class Devb_Conditional_Profile_admin{
     <?php 
     
     }
+	
+	/**
+	 * Load the required JS file for the admin
+	 * 
+	 * @return type
+	 */
+    public function load_admin_js() {
+        
+      
+                
+        if( !$this->is_admin() )
+            return;
+        
+        wp_enqueue_script( 'bp-conditional-profile-admin-js', $this->url . 'assets/bp-conditional-field-admin.js' , array( 'jquery' ) );
+        
+        
+    }
+    	
+	/**
+	 * Load css file on the add/edit field
+	 * 
+	 * @return type
+	 */
     public function load_admin_css() {
         
   
@@ -300,6 +316,11 @@ class Devb_Conditional_Profile_admin{
         wp_enqueue_style( 'bp-conditional-profile-admin-css', $this->url . 'assets/bp-conditional-field-admin.css' );
     }
     
+	/**
+	 * Check if we are on the Add/edit field page
+	 * 
+	 * @return boolean
+	 */
     public function is_admin() {
         
         if( is_admin() && ( get_current_screen()->id == 'users_page_bp-profile-setup' || get_current_screen()->id == 'users_page_bp-profile-setup-network' ) )

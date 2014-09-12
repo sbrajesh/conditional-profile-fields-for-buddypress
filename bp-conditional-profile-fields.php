@@ -14,12 +14,47 @@
  * 'Devb' is the string that we have started using for any code form BuddyDev( DevB in reverseorder)
  */
 class Devb_Conditional_Xprofile_Field_Helper {
-
+	/**
+	 *
+	 * @var Devb_Conditional_Xprofile_Field_Helper singleton instance
+	 */
 	private static $instance;
+	/**
+	 * file system absolute path to this plugin directory (Has a trailing / at the end)
+	 * 
+	 * @var type 
+	 */
 	private $path;
+	/**
+	 * Absolute url to this plugin directory (has a trailing slash)
+	 * 
+	 * @var type 
+	 */
 	private $url;
-	//all fields info
+	
+	/**
+	 * Keeps info about all the BuddyPress Xprofile fields.
+	 * 
+	 * Multi dimensional array of the type
+	 *  array( 'field_1'=> array( 
+	 *				'conditions'=> array( 'field_id' => 2, 'value'=>'something', 'operator'=> 'any of the allowed operator' ),
+	 *				'type'=> multiselect|select|datebox|checkbox|radiobutton etc (The last name in lowercase of the profile field type),
+	 *				'children'=> array() //array of all the children
+	 *			),
+	 * 
+	 *			'field_x'=> array( 
+	 *				'conditions'=> array( 'field_id' => 5, 'value'=>'something', 'operator'=> 'any of the allowed operator' ),
+	 *				'type'=> multiselect|select|datebox|checkbox|radiobutton etc (The last name in lowercase of the profile field type),
+	 *				'children'=> array() //array of all the children
+	 *			),
+	 * 
+	 * 
+	 * 
+	 * )
+	 * @var type 
+	 */
 	private $fields = array();
+	
 	//info about the fields on which cause conditions to be applied on other fields
 	private $conditional_fields = array();
 	
@@ -38,6 +73,14 @@ class Devb_Conditional_Xprofile_Field_Helper {
 		//add_action( 'bp_enqueue_scripts', array( $this, 'load_css' ) );
 		//inject the conditions as javascript object 
 		add_action( 'bp_head', array( $this, 'to_js_objects' ) );
+		
+		
+		//when the user account is activated, do not save the fields trigerred by the condition
+		add_action( 'bp_core_activated_user', array( $this, 'update_saved_fields' ) );
+		
+		//when user profile is updated, check and update for condition
+		add_action( 'xprofile_updated_profile', array( $this, 'update_saved_fields' ) );
+		
 	}
 
 	/**
@@ -87,7 +130,10 @@ class Devb_Conditional_Xprofile_Field_Helper {
 				
 				
 				$this->fields['field_'. $field->id]['data'] = $field;
+				
 				$field = new BP_XProfile_Field( $field->id );
+				
+				//READ IT PLEASE
 				//Now, I need type to handle the event binding on client side
 				////the problem is there are inconsistency in the way id/class are applied on generade view, That's why i need type info
 				//BuddyPress does not give explicit type, except for the class name,
@@ -102,18 +148,16 @@ class Devb_Conditional_Xprofile_Field_Helper {
 				$children = $field->get_children();
 
 				if ( ! empty( $children ) ) {
-					//if yes, we need to replace the value(as the value is id of the child option) with the name of the child option
-					foreach ( $children as $child ) {
-						$this->fields['field_' . $field->id]['children'][] = $child;
-						
-					}
+					
+					$this->fields['field_' . $field->id]['children']= $children;
+								
 				}
 				
 				$related_id = $this->get_related_field_id( $field->id );
 				//if this field has no condition set, let us not worry
 				if ( ! $related_id )
 					continue;
-
+				//if we have condition set on this field, let us get info
 				$this->conditional_fields['field_' . $related_id]['conditions'][] = $this->get_field_condition( $field->id );
 				
 				
@@ -122,6 +166,7 @@ class Devb_Conditional_Xprofile_Field_Helper {
 	}
 
 	/**
+	 * Get the condition applied on a field
 	 * 
 	 * @param type $field_id
 	 * @return array('field_id', 'visibility', 'operator', 'value' )
@@ -172,6 +217,126 @@ class Devb_Conditional_Xprofile_Field_Helper {
 		return $related_field;
 	}
 
+	/**
+	 * Delete the fields on new user activation/profile update that do not conform to our condition
+	 * and yes, I am the boss here, don' ask me the logic :P
+	 * 
+	 * @param type $user_id
+	 */
+	public function update_saved_fields( $user_id ) {
+		
+		//build all conditions array
+		$this->build_conditions();
+		
+		//get the fields whose value triggers conditions
+		$conditional_fields = $this->conditional_fields;
+		
+		//Now, There can be multiple conditional fields
+		foreach ( $conditional_fields as $conditional_field_id => $related_fields ) {
+			
+			//for each field triggering the condition, get the field data for this field
+			$conditional_field_id = (int)str_replace('field_', '', $conditional_field_id );
+			
+			$data = xprofile_get_field_data( $conditional_field_id, $user_id, 'array' );
+			
+			//find all the conditions which are based on the vale of this field
+			foreach( $related_fields['conditions'] as $condition ) {
+				
+				//check if condition is matched
+				if( $this->is_match( $data , $condition['value'], $condition['operator'] ) ) {
+					echo "Condition matched";
+					//if visibility is set to hidden and condition matched, delete data for the field on which this condition is applied
+					if( $condition['visibility'] =='hide'){
+						
+						xprofile_delete_field_data( $condition['field_id'], $user_id );
+					}
+					
+				}else{
+					
+					//if there is no match and the visibility is set to show on condition, we still need to delete the data for the field on which this condition is applied
+					
+					if( $condition['visibility'] == 'show' ) {
+						
+						xprofile_delete_field_data( $condition['field_id'], $user_id );
+					}
+				}
+				
+			}
+			
+		}
+		
+		
+	}
+	
+	/**
+	 * Check if given the value, conditional value and operator, if there is a match?
+	 * 
+	 * @param type $current_val
+	 * @param type $val
+	 * @param type $operator
+	 * @return boolean
+	 */
+	public function is_match( $current_val, $val, $operator ) {
+        
+			$matched = false;
+			
+            switch( $operator ) {
+                
+                case '=':
+                    
+                    if( ! is_array( $current_val ) && $current_val == $val  )
+                        $matched = true;
+                    elseif( is_array( $current_val ) && in_array( $val, $current_val ) )
+						$matched = true;
+                    break;
+                    
+                case '!=':
+                    
+                    if( !is_array( $current_val ) && $current_val != $val  )
+                        $matched = true;
+                    elseif( is_array( $current_val ) && !in_array(  $val, $current_val ))
+						$matched = true;
+					
+                    break;
+                    
+                case '<=':
+                    
+                    if( $current_val <= $val  )
+                        $matched = true;
+                    
+                    break;
+                    
+                case '>=':
+                    
+                    if( $current_val >= $val  )
+                        $matched = true;
+                    
+                    break;
+                    
+                case '<':
+                    
+                    if( $current_val < $val  )
+                        $matched = true;
+                    
+                    break;
+                    
+                
+                case '>':
+                    
+                    if( $current_val > $val  )
+                        $matched = true;
+                    
+                    break;
+                    
+              
+                    
+                
+                
+            }
+            
+            return $matched;
+    }
+	
 	/**
 	 * Injects the profile field conditions a js object
 	 * 
