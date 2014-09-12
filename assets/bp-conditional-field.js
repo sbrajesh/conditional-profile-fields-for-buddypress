@@ -54,7 +54,7 @@ jQuery( document ).ready( function(){
 			
 			
 		}else{
-			var identifier = field_id+'\[\]';
+			var identifier = multifields[j]+'\[\]';
 			selector =  "[name='"+identifier +"']";
 			
 			
