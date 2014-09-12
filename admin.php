@@ -25,7 +25,7 @@ class Devb_Conditional_Profile_admin{
     private function __construct() {
        
         $this->path = plugin_dir_path( __FILE__ );
-        $this->url = plugin_dir_url( __FILE__ );
+        $this->url  = plugin_dir_url( __FILE__ );
         
         add_action( 'xprofile_field_after_save', array( $this, 'save_field_condition' ) );
         
@@ -274,7 +274,7 @@ class Devb_Conditional_Profile_admin{
         if( !$this->is_admin() )
             return;
         
-        wp_enqueue_script( 'bp-conditional-profile-admin-js', $this->url . 'assets/bp-conditional-field-admin.js' , array( 'jquery'));
+        wp_enqueue_script( 'bp-conditional-profile-admin-js', $this->url . 'assets/bp-conditional-field-admin.js' , array( 'jquery' ) );
         
         
     }
@@ -294,7 +294,7 @@ class Devb_Conditional_Profile_admin{
     public function load_admin_css() {
         
   
-        if( !$this->is_admin() )
+        if( ! $this->is_admin() )
             return;
         
         wp_enqueue_style( 'bp-conditional-profile-admin-css', $this->url . 'assets/bp-conditional-field-admin.css' );

@@ -138,9 +138,17 @@ jQuery( document ).ready( function(){
      */
     function show_hide_field( field_id, visibility, match ){
         
-        var identifier = '#field_'+field_id;
+        var identifier = 'field_'+field_id;
+        var element = jq("[id^='"+identifier+"']").get(0);
+        //if there does not exist
+       if( !element )
+           console.log('Conditional Profile Fields:There seems to be some html issue and I am not able to fix it, Please tell that to the developer: field_id:'+field_id);
+       
+       
         
-        var element = jq( jq(identifier).parents('.editfield').get(0) );
+        //make sure that the field is not datebox, in case of  datebox, the element does not exist
+        
+        var parent_div = jq(jq(element).parents('.editfield').get(0) );
         
         //;find its parent having class edit field
         if( !match ){
@@ -159,12 +167,17 @@ jQuery( document ).ready( function(){
         
         if( visibility =='show' ) {
         
-            element.show();
+            parent_div.show();
         
         }else{
          
-            element.hide();
+            parent_div.hide();
+            //cler values
+           // jq(identifier).val('');
         }    
     }
     
 });
+
+//on client side, hide fields
+//on server side, do not allow update, just delete fields
