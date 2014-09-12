@@ -49,24 +49,33 @@ class Devb_Conditional_Profile_admin{
     
     public function save_field_condition( $field ) {
         
-        if( isset( $_POST['xprofile-condition-display'] ) ){
+        if( isset( $_POST['xprofile-condition-display'] ) ) {
             
-            if( empty( $_POST['xprofile-condition-display'] ) ){
+            if( empty( $_POST['xprofile-condition-display'] ) ) {
                 $this->delete_condition( $field->id );
                 return;
             }
-            
+			
+           if( !wp_verify_nonce( $_POST['xprofile-condition-edit-nonce'], 'xprofile-condition-edit-action' ) )
+		   return;
+		
             //if we are here, we need to set the condition
-            $visibility = $_POST['xprofile-condition-display'];
+            $visibility = $_POST['xprofile-condition-display']; //no need to worry about it, we will explicitly check visibility after .000001ms from here
             
-            $other_field_id = absint( $_POST['xprofile-condition-other-field'] );
+            $other_field_id = absint( $_POST['xprofile-condition-other-field'] );//field id must be an integer
             
-            $operator = $_POST['xprofile-condition-operator'];
+            $operator = $this->validate_operator( $_POST['xprofile-condition-operator'], $other_field_id ) ;
+			
+			//check for valid operator
             
-            $value = $_POST['xprofile-condition-other-field-value'];
+			//sanitize the field value
+			 $value = $_POST['xprofile-condition-other-field-value'];
+			
+			$value = $this->sanitize_value( $value, $other_field_id );
+			
+			
             
-            
-            if( in_array( $visibility,  array( 'show', 'hide' ) ) && $other_field_id && $operator  ){
+            if( in_array( $visibility,  array( 'show', 'hide' ) ) && $other_field_id && $operator  ) {
                 //make sure that all the fields are set
                  //what about empty value?
                 
@@ -83,6 +92,43 @@ class Devb_Conditional_Profile_admin{
         //we need to check if the condition was save, if yes, let us keep that condition in the meta
         
     }
+	/**
+	 * Returns operator if valid, else false
+	 * 
+	 * @param type $operator
+	 * @param type $field_id
+	 */
+	public function validate_operator( $operator, $field_id ) {
+		
+		$operators = array_keys( $this->operators['single'] );
+			
+			
+	
+		if( !in_array( $operator, $operators ) )
+			return false;
+		
+		return trim( $operator );
+	}
+	
+	
+	
+	public function sanitize_value( $value, $field_id ) {
+		
+		$field  = new BP_XProfile_Field( $field_id );
+		//incase of textarea/textbox the value needs to be sanitized, else just int?
+		if( $field->type == 'textbox' || $field->type = 'textarea' )
+			return esc_attr ( $value );;//should we really use esc_attr or esc_html or esc_js?
+			
+		//in all other cases
+	
+		if( is_numeric( $value ) )
+			return $value;
+		
+		//otherwise cast to number type
+		
+		return (float) $value;//or should we only go with int?
+		
+	}
     /**
      * Deletes the condition associated with a profile field
      * 
@@ -203,12 +249,13 @@ class Devb_Conditional_Profile_admin{
 
                 ?>
                 <?php echo $options;?>
-
+				
             </div>
             
-            </div>   
+            </div> 
+			<?php				wp_nonce_field( 'xprofile-condition-edit-action', 'xprofile-condition-edit-nonce' );?>
         </div>
-
+		
         <?php
     }
     
