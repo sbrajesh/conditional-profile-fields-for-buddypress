@@ -18,8 +18,11 @@ class Devb_Conditional_Xprofile_Field_Helper {
 	private static $instance;
 	private $path;
 	private $url;
+	//all fields info
 	private $fields = array();
-
+	//info about the fields on which cause conditions to be applied on other fields
+	private $conditional_fields = array();
+	
 	private function __construct() {
 
 		$this->path = plugin_dir_path( __FILE__ );
@@ -81,24 +84,39 @@ class Devb_Conditional_Xprofile_Field_Helper {
 		foreach ( $groups as $group ) {
 
 			foreach ( $group->fields as $field ) {
-
-				$related_id = $this->get_related_field_id( $field->id );
-				//if this field has no condition set, let us not worry
-				if ( ! $related_id )
-					continue;
-
-				$this->fields['field_' . $related_id]['conditions'][] = $this->get_field_condition( $field->id );
 				
+				
+				$this->fields['field_'. $field->id]['data'] = $field;
+				$field = new BP_XProfile_Field( $field->id );
 				//Now, I need type to handle the event binding on client side
 				////the problem is there are inconsistency in the way id/class are applied on generade view, That's why i need type info
 				//BuddyPress does not give explicit type, except for the class name,
 				//I now, It is bad but I am stil going to do it anyway
 				//Can we improve this in future?
-				$related = new BP_XProfile_Field( $related_id );
-				$class_name = explode( '_', get_class( $related->type_obj ) );
+				$class_name = explode( '_', get_class( $field->type_obj ) );
 				$class_name = strtolower( array_pop( $class_name ) );
 				
-				$this->fields['field_' . $related_id ]['type'] = $class_name;
+				$this->fields['field_' . $field->id ]['type'] = $class_name;
+				//we got type+data
+				//let us get the children
+				$children = $field->get_children();
+
+				if ( ! empty( $children ) ) {
+					//if yes, we need to replace the value(as the value is id of the child option) with the name of the child option
+					foreach ( $children as $child ) {
+						$this->fields['field_' . $field->id]['children'][] = $child;
+						
+					}
+				}
+				
+				$related_id = $this->get_related_field_id( $field->id );
+				//if this field has no condition set, let us not worry
+				if ( ! $related_id )
+					continue;
+
+				$this->conditional_fields['field_' . $related_id]['conditions'][] = $this->get_field_condition( $field->id );
+				
+				
 			}
 		}
 	}
@@ -168,7 +186,7 @@ class Devb_Conditional_Xprofile_Field_Helper {
 		?>
 		<script type='text/javascript'>
 
-			var xpfields = <?php echo json_encode( $this->fields ); ?>
+			var xpfields = <?php echo json_encode( array( 'fields'=> $this->fields, 'conditional_fields'=> $this->conditional_fields ) ); ?>
 
 		</script>
 		<?php
@@ -197,6 +215,7 @@ class Devb_Conditional_Xprofile_Field_Helper {
 		if ( ! $this->is_active() )
 			return;
 
+		
 		wp_enqueue_script( 'bp-conditional-profile-js', $this->url . 'assets/bp-conditional-field.js', array( 'jquery' ) );
 	}
 
