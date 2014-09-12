@@ -46,18 +46,25 @@ class Devb_Conditional_Profile_admin{
         return self::$instance;
     }
     
-    
+    /**
+	 * Save condition information when a Field is added/edited
+	 * 
+	 * @param type $field
+	 * @return type
+	 */
     public function save_field_condition( $field ) {
         
         if( isset( $_POST['xprofile-condition-display'] ) ) {
             
             if( empty( $_POST['xprofile-condition-display'] ) ) {
+				
                 $this->delete_condition( $field->id );
+				
                 return;
             }
 			
            if( !wp_verify_nonce( $_POST['xprofile-condition-edit-nonce'], 'xprofile-condition-edit-action' ) )
-		   return;
+				return;
 		
             //if we are here, we need to set the condition
             $visibility = $_POST['xprofile-condition-display']; //no need to worry about it, we will explicitly check visibility after .000001ms from here
