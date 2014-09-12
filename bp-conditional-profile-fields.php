@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Conditional Profile Feilds for BuddyPress
- * Version: 1.1
+ * Version: 1.1.1
  * Author: Brajesh Singh, Anu Sharma
  * Plugin URI: http://buddydev.com/plugins/conditional-profile-fields-for-buddypress/
  * Author URI: http://buddydev.com

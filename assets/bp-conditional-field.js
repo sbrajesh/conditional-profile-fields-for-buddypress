@@ -36,7 +36,7 @@ jQuery( document ).ready( function(){
 	
     //bind the change event for the elemnts in fields array
     
-    jq(document). on( 'change', fields.join(','), function(){
+    jq(document). on( 'change', fields.join(','), function() {
         
        apply_condition( this );
         
@@ -78,9 +78,9 @@ jQuery( document ).ready( function(){
 	 * @param {type} selector
 	 * @returns {undefined}
 	 */
-	function add_condition( selector ){
+	function add_condition( selector ) {
 		
-		jq( document ).on( 'change', selector, function(){
+		jq( document ).on( 'change', selector, function() {
        
 			apply_condition( this );
         
@@ -247,7 +247,7 @@ jQuery( document ).ready( function(){
 		//so we can understand the behaviour of this field
 		var field = all_fields['field_'+field_id];
 		var done = false;
-		
+		var element = '';
 		
 		//find the element to hide
 		
