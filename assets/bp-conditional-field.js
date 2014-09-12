@@ -1,31 +1,77 @@
 jQuery( document ).ready( function(){
    var jq = jQuery;
-    //we need to run it on page load to make sure only the fields which are allowed by the current condition are shown
     
     
-    //now let us bind to the change events
-    //xpfields
-    //find 
-    
-    //get all field ids
+    //all bp fields info
+	var all_fields = xpfields.fields;
+	
+	//only fields which are used to trigger conditions
+	var conditional_fields = xpfields.conditional_fields;
+	//building a list of normal fields(except checkboxes/radio) that trigger a visibility condition	
     var fields = [];
-    for( var field_id in xpfields ){
-        fields.push( '#'+field_id );
+	//list of the fields which is either radio or checkbox and trigger some condition
+	var multifields = [];
+	
+		//Build the fields, multifields array
+		
+    for( var field_id in conditional_fields ){
+		
+		if( all_fields[field_id]['type'] == 'checkbox' || all_fields[field_id]['type'] == 'radiobutton' ) {
+			
+			multifields.push(field_id);
+			
+		}else{
+        
+			fields.push( '#'+field_id );
+		
+		}
+		
     }
    //try to see if any condition matches and sho hide/show appropriate field on page load
-    for( var j = 0; j< fields.length; j++ ){
+    for( var j = 0; j< fields.length; j++ ) {
         
         apply_condition( fields[j] );
         
     }
-    //bind the change event
+	
+    //bind the change event for the elemnts in fields array
     
     jq(document). on( 'change', fields.join(','), function(){
         
        apply_condition( this );
         
     });
-    
+
+	//for multifields, this block does two things
+	//1. adds an event listener
+	//2. Check the fields on initial page load for a match
+	
+	for( var j=0; j<multifields.length; j++ ) {
+		var selector = '';
+		
+		if( all_fields[multifields[j]]['type'] =='radiobutton' ){
+			selector = '#'+multifields[j] + ' input';
+			add_condition(selector);
+			continue;
+		}else{
+			identifier = field_id+'\[\]';
+			selector =  "[name='"+identifier +"']";
+			console.log(selector);
+			add_condition(selector);
+		}
+		apply_condition( jq(selector));
+	}
+	
+	
+	function add_condition( selector ){
+		
+		jq(document). on( 'change', selector, function(){
+       
+			apply_condition( this );
+        
+		});
+	}
+    //we need to bind for checkbox, radio box & datebox too
     /**
      * Applies a condition to the field
      * 
@@ -34,13 +80,57 @@ jQuery( document ).ready( function(){
      */
     function apply_condition( element ) {
         
+        var done = false;
+		
+		var id = '';
+		//find the element to hide
+		var type = jq(element).attr( 'type' );
+		var current_val = '';
+		
+		//I am not happy with the way we need to handle checkboxes her, It could be much better
+		
+		if(  type == 'checkbox' ) {
+		
+		
+			id = jq( element ).attr('name');
+			id = id.replace('\[\]', ''); //field_n[] to field_n
+			
+			if( jq(element).is(':checked') )
+				current_val = jq( element).val();
+			
+			done = true;
+		}
+		
+		if( !done && type == 'radio' ) {
+			
+			id = jq(element).attr('name');
+			current_val = jq( element ).val();
+			done = true;
+			
+		}
+		//we do not support datebox yet
+		if( !done &&  type =='datebox' ){
+			
+			
+			done = true;
+		}
+		if( !done ){
+			//it is neither of the above,
+			
+			id = jq( element ).attr('id');
+			current_val = jq( element ).val();
+		}
         
-        var id = jq( element ).attr('id');
-        var current_val = jq( element ).val();
+		
+		//we know id
+       if( ! id )
+		   return;
         
-        
-        var field = xpfields[id];
-        if( field ==undefined)
+        //get the field associated with this condition
+        var field = conditional_fields[id];
+		
+		//is there really a condition associated with field, if not, do not proceed
+        if( field == undefined)
             return;
         
         //if we are here, process the conditions
@@ -138,18 +228,61 @@ jQuery( document ).ready( function(){
      */
     function show_hide_field( field_id, visibility, match ){
         
-        var identifier = 'field_'+field_id;
-        var element = jq("[id^='"+identifier+"']").get(0);
-        //if there does not exist
-       if( !element )
+		//we have the field id
+		//so we can understand the behaviour of this field
+		var field = all_fields['field_'+field_id];
+		console.log(field);
+		console.log('Field Id:'+field_id);
+		var done = false;
+		
+		var identifier = '';
+		//find the element to hide
+		
+		if(  field['type'] == 'checkbox' ) {
+		
+		identifier = 'field_' + field_id+'\[\]';
+		element = jq( "[name='"+identifier +"']");
+		//console.log(element);
+			
+		done = true;
+		
+			
+		}
+		
+		if( !done && field['type'] == 'radiobutton' ) {
+			
+			element = jq('#field_'+field_id);
+			
+			done = true;
+			
+		}
+		if( !done &&  field['type'] =='datebox' ){
+			
+			element = jq('#field_' + field_id + '_day' );
+			done = true;
+		}
+		if( !done ){
+			//it is neither of the above,
+			
+			element = jq( '#field_'+field_id );
+			done = true;
+		}
+		
+		 if( !element )
            console.log('Conditional Profile Fields:There seems to be some html issue and I am not able to fix it, Please tell that to the developer: field_id:'+field_id);
        
+		
+        var element = element.get(0);
+        //if there does not exist
+      
        
         
         //make sure that the field is not datebox, in case of  datebox, the element does not exist
         
         var parent_div = jq(jq(element).parents('.editfield').get(0) );
-        
+		
+        console.log(parent_div);
+		console.log('match'+match +parent_div.attr('class'));
         //;find its parent having class edit field
         if( !match ){
             //if the condition did not match, reverse visibility condition
