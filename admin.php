@@ -35,7 +35,7 @@ class Devb_Conditional_Profile_admin{
         add_action( 'bp_admin_enqueue_scripts', array( $this, 'load_admin_js' ) );
         add_action( 'bp_admin_enqueue_scripts', array( $this, 'load_admin_css' ) );
         
-        add_action( 'admin_footer', array($this, 'to_js_objects' ) );
+        add_action( 'admin_footer', array(  $this, 'to_js_objects' ) );
     }
     
     public static function get_instance() {

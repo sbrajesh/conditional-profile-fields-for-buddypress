@@ -1,5 +1,5 @@
 jQuery( document ).ready( function(){
-   var jq = jQuery;
+	var jq = jQuery;
     
     
     //all bp fields info
@@ -51,21 +51,36 @@ jQuery( document ).ready( function(){
 		
 		if( all_fields[multifields[j]]['type'] =='radiobutton' ){
 			selector = '#'+multifields[j] + ' input';
-			add_condition(selector);
-			continue;
+			
+			
 		}else{
-			identifier = field_id+'\[\]';
+			var identifier = field_id+'\[\]';
 			selector =  "[name='"+identifier +"']";
-			console.log(selector);
-			add_condition(selector);
+			
+			
 		}
-		apply_condition( jq(selector));
+		if( selector ) {
+			
+			add_condition( selector );
+			
+			
+			apply_condition( jq(selector) );
+			
+			
+		}
+		
 	}
 	
-	
+	/**
+	 * Binds change event to the elemens based on given  selector
+	 * We use it for multifields binding
+	 * 
+	 * @param {type} selector
+	 * @returns {undefined}
+	 */
 	function add_condition( selector ){
 		
-		jq(document). on( 'change', selector, function(){
+		jq( document ).on( 'change', selector, function(){
        
 			apply_condition( this );
         
@@ -95,8 +110,8 @@ jQuery( document ).ready( function(){
 			id = jq( element ).attr('name');
 			id = id.replace('\[\]', ''); //field_n[] to field_n
 			
-			if( jq(element).is(':checked') )
-				current_val = jq( element).val();
+			//if( jq(element).is(':checked') )
+				current_val = jq( element).parents('.checkbox').find('input:checked').val();
 			
 			done = true;
 		}
@@ -104,7 +119,7 @@ jQuery( document ).ready( function(){
 		if( !done && type == 'radio' ) {
 			
 			id = jq(element).attr('name');
-			current_val = jq( element ).val();
+			current_val = jq( element).parents('.radio').find('input:checked').val();
 			done = true;
 			
 		}
@@ -231,20 +246,20 @@ jQuery( document ).ready( function(){
 		//we have the field id
 		//so we can understand the behaviour of this field
 		var field = all_fields['field_'+field_id];
-		console.log(field);
-		console.log('Field Id:'+field_id);
 		var done = false;
 		
-		var identifier = '';
+		
 		//find the element to hide
 		
 		if(  field['type'] == 'checkbox' ) {
-		
-		identifier = 'field_' + field_id+'\[\]';
-		element = jq( "[name='"+identifier +"']");
-		//console.log(element);
 			
-		done = true;
+			var identifier = '';
+			identifier = 'field_' + field_id+'\[\]';
+			
+			element = jq( "[name='"+identifier +"']");
+			
+
+			done = true;
 		
 			
 		}
@@ -269,7 +284,7 @@ jQuery( document ).ready( function(){
 		}
 		
 		 if( !element )
-           console.log('Conditional Profile Fields:There seems to be some html issue and I am not able to fix it, Please tell that to the developer: field_id:'+field_id);
+           console.log( 'Conditional Profile Fields:There seems to be some html issue and I am not able to fix it, Please tell that to the developer: field_id:'+field_id );
        
 		
         var element = element.get(0);
@@ -279,10 +294,10 @@ jQuery( document ).ready( function(){
         
         //make sure that the field is not datebox, in case of  datebox, the element does not exist
         
-        var parent_div = jq(jq(element).parents('.editfield').get(0) );
+        var parent_div = jq( jq( element ).parents( '.editfield' ).get(0) );
+	
+       
 		
-        console.log(parent_div);
-		console.log('match'+match +parent_div.attr('class'));
         //;find its parent having class edit field
         if( !match ){
             //if the condition did not match, reverse visibility condition
