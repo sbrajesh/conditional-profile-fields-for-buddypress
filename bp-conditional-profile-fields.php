@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Conditional Profile Feilds for BuddyPress
- * Version: 1.1.1
+ * Version: 1.1.2
  * Author: Brajesh Singh, Anu Sharma
  * Plugin URI: http://buddydev.com/plugins/conditional-profile-fields-for-buddypress/
  * Author URI: http://buddydev.com
@@ -244,7 +244,7 @@ class Devb_Conditional_Xprofile_Field_Helper {
 				
 				//check if condition is matched
 				if( $this->is_match( $data , $condition['value'], $condition['operator'] ) ) {
-					echo "Condition matched";
+					
 					//if visibility is set to hidden and condition matched, delete data for the field on which this condition is applied
 					if( $condition['visibility'] =='hide'){
 						
