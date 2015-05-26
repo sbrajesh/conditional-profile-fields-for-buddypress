@@ -2,7 +2,7 @@ jQuery( document ).ready( function() {
     
     var jq = jQuery;
     //move the condition box to the bottom of the screen,
-    //buddypress does not have an appropriate hoo, so we do it via js
+    //buddypress does not have an appropriate hook, so we do it via js
     jq('#postbox-container-2').append(jq('#xprofile-field-condition'));
     
     //var xpfields;

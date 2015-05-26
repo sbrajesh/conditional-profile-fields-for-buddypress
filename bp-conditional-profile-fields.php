@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Conditional Profile Feilds for BuddyPress
- * Version: 1.1.2
+ * Version: 1.1.3
  * Author: Brajesh Singh, Anu Sharma
  * Plugin URI: http://buddydev.com/plugins/conditional-profile-fields-for-buddypress/
  * Author URI: http://buddydev.com
@@ -55,7 +55,9 @@ class Devb_Conditional_Xprofile_Field_Helper {
 	 */
 	private $fields = array();
 	
-	//info about the fields on which cause conditions to be applied on other fields
+	private $data = array();//keep a copy of the field data
+	//
+	//info about the fields  which cause conditions to be applied on other fields
 	private $conditional_fields = array();
 	
 	private function __construct() {
@@ -135,9 +137,9 @@ class Devb_Conditional_Xprofile_Field_Helper {
 				
 				//READ IT PLEASE
 				//Now, I need type to handle the event binding on client side
-				////the problem is there are inconsistency in the way id/class are applied on generade view, That's why i need type info
+				////the problem is there are inconsistency in the way id/class are applied on generated view, That's why I need type info
 				//BuddyPress does not give explicit type, except for the class name,
-				//I now, It is bad but I am stil going to do it anyway
+				// now, It is bad but I am stil going to do it anyway
 				//Can we improve this in future?
 				$class_name = explode( '_', get_class( $field->type_obj ) );
 				$class_name = strtolower( array_pop( $class_name ) );
@@ -163,8 +165,57 @@ class Devb_Conditional_Xprofile_Field_Helper {
 				
 			}
 		}
+		
+		
+			
+		$this->data = $this->get_data();
+			
+		
+		
 	}
 
+	private function get_data( $user_id = false ) {
+		
+		$data = array();
+		if( ! is_user_logged_in() )
+			return $data;
+		
+		if( ! $user_id )
+			$user_id = get_current_user_id ();
+		
+		//incase we are on someone's profile, override user id
+		
+		if( bp_is_user() )
+			$user_id = bp_displayed_user_id ();
+		
+		
+		$groups = bp_xprofile_get_groups( array(
+			'user_id'                => $user_id,
+			'hide_empty_groups'      => true,
+			'hide_empty_fields'      => true,
+			'fetch_fields'           => true,
+			'fetch_field_data'       => true,
+		) );
+		
+		
+		foreach ( (array) $groups as $group ) {
+			
+			if ( empty( $group->fields ) ) {
+				continue;
+			}
+
+			foreach ( (array) $group->fields as $field ) {
+				$data[ 'field_'. $field->id ] = array(
+					//'group_id'		=> $group->id,
+					//'field_id'		=> $field->id,
+					'field_type'	=> $field->type,
+					'value'			=> $field->data->value,
+				);
+			}
+		}
+		
+		return $data;
+	}
 	/**
 	 * Get the condition applied on a field
 	 * 
@@ -351,7 +402,7 @@ class Devb_Conditional_Xprofile_Field_Helper {
 		?>
 		<script type='text/javascript'>
 
-			var xpfields = <?php echo json_encode( array( 'fields'=> $this->fields, 'conditional_fields'=> $this->conditional_fields ) ); ?>
+			var xpfields = <?php echo json_encode( array( 'fields'=> $this->fields, 'conditional_fields'=> $this->conditional_fields, 'data' => $this->data ) ); ?>
 
 		</script>
 		<?php

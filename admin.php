@@ -1,6 +1,6 @@
 <?php
 
-class Devb_Conditional_Profile_admin{
+class Devb_Conditional_Profile_Admin{
     
     private static $instance;
     
@@ -328,7 +328,7 @@ class Devb_Conditional_Profile_admin{
 	 */
     public function to_js_objects() {
         
-        if( !$this->is_admin() )
+        if( ! $this->is_admin() )
             return;
        ?>
         <script type='text/javascript'>
@@ -377,7 +377,7 @@ class Devb_Conditional_Profile_admin{
 	 */
     public function is_admin() {
         
-        if( is_admin() && ( get_current_screen()->id == 'users_page_bp-profile-setup' || get_current_screen()->id == 'users_page_bp-profile-setup-network' ) )
+        if( !defined( 'DOING_AJAX' ) && is_admin() && ( get_current_screen()->id == 'users_page_bp-profile-setup' || get_current_screen()->id == 'users_page_bp-profile-setup-network' ) )
             return true;
         
         return false;
@@ -385,4 +385,4 @@ class Devb_Conditional_Profile_admin{
     }
 }
 
-Devb_Conditional_Profile_admin::get_instance();
+Devb_Conditional_Profile_Admin::get_instance();

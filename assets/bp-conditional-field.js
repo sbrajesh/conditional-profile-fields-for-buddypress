@@ -7,8 +7,10 @@ jQuery( document ).ready( function(){
 	
 	//only fields which are used to trigger conditions
 	var conditional_fields = xpfields.conditional_fields;
+	var data = xpfields.data;//only for logged user, this is fetched if the user is logged in and depends on whether viewing a profile or not
 	//building a list of normal fields(except checkboxes/radio) that trigger a visibility condition	
     var fields = [];
+	var has_data = !jQuery.isEmptyObject( data );
 	//list of the fields which is either radio or checkbox and trigger some condition
 	var multifields = [];
 	
@@ -29,8 +31,8 @@ jQuery( document ).ready( function(){
     }
    //try to see if any condition matches and sho hide/show appropriate field on page load
     for( var j = 0; j< fields.length; j++ ) {
-        
-        apply_condition( fields[j] );
+      
+        apply_initial_condition( fields[j] );
         
     }
 	
@@ -63,9 +65,11 @@ jQuery( document ).ready( function(){
 			
 			add_condition( selector );
 			
-			
-			apply_condition( jq(selector) );
-			
+			if( has_data ){
+				
+				apply_initial_condition( multifields[j] );
+			}else
+				apply_condition(jq( selector ) );
 			
 		}
 		
@@ -94,7 +98,8 @@ jQuery( document ).ready( function(){
      * @returns {undefined}
      */
     function apply_condition( element ) {
-        
+      
+	 
         var done = false;
 		
 		var id = '';
@@ -229,6 +234,32 @@ jQuery( document ).ready( function(){
             
             return condition_matched;
     }
+	
+	//will improve in future
+	function apply_initial_condition( field ){
+		
+		var field_id = field.replace('#', '');
+		var current_val = data[field_id];
+		
+		if( current_val == undefined )
+			return ;
+		
+		current_val = current_val.value;
+		
+		var related_conditional_field = conditional_fields[field_id];
+		 //if we are here, process the conditions
+        for( var i = 0; i< related_conditional_field.conditions.length; i++ ) {
+            
+            //apply each condition which depend on this field
+            var condition = related_conditional_field.conditions[i];
+			
+            var matched = is_match( current_val, condition.value, condition.operator );
+                
+            show_hide_field( condition.field_id, condition.visibility, matched );
+         
+        }
+		
+	}
     /**
      * Sow or Hide an entry in the form, hides whole editable div
      * It is based on the assumption that BuddyPress profile edit field parent div have a class 'editfield' and another class 'field_id'
