@@ -78,7 +78,7 @@ class Devb_Conditional_Profile_Admin{
 			//sanitize the field value
 			 $value = $_POST['xprofile-condition-other-field-value'];
 			
-			$value = $this->sanitize_value( $value, $other_field_id );
+			//$value = $this->sanitize_value( $value, $other_field_id );
 			
 			
             
@@ -239,8 +239,10 @@ class Devb_Conditional_Profile_Admin{
 
                     if( $children  ){
                         //multi field
-                        foreach( $children as $child_field ) 
-                            $options .= "<label><input type='radio' value='{$child_field->id}'" .  checked( $other_field_value, $child_field->id, false ) ." name='xprofile-condition-other-field-value' />{$child_field->name}</label>";
+                        foreach( $children as $child_field ) {
+			    $checked = in_array( $child_field->id, $other_field_value ) ? 'checked' : '';
+                            $options .= "<label><input type='checkbox' value='{$child_field->id}'" .   $checked ." name='xprofile-condition-other-field-value[]' />{$child_field->name}</label>";
+                        }
 
                     }else{
                         $options =  "<input type='text' name='xprofile-condition-other-field-value' id='xprofile-condition-other-field-value' class='xprofile-condition-other-field-value-single' value ='{$other_field_value}'; />";

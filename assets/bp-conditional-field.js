@@ -187,6 +187,18 @@ jQuery( document ).ready( function(){
                     
                     if( current_val == val  )
                         condition_matched = true;
+		    else {
+			var array = jq.map(val, function(value, index) {
+				return [value];
+			    });
+			
+			for( var i = 0; i < array.length; i++ ){
+				if( current_val == array[i]  ){
+					condition_matched = true;
+				}
+			}
+			
+		    }
                     
                     break;
                     
@@ -194,6 +206,17 @@ jQuery( document ).ready( function(){
                     
                     if( current_val != val  )
                         condition_matched = true;
+		    else {
+			var array = jq.map(val, function(value, index) {
+				return [value];
+			    });
+			
+			for( var i = 0; i < array.length; i++ ){
+				if( current_val != array[i]  ){
+					condition_matched = true;
+				}
+			}
+		    }
                     
                     break;
                     
@@ -201,6 +224,17 @@ jQuery( document ).ready( function(){
                     
                     if( current_val <= val  )
                         condition_matched = true;
+		    else {
+			var array = jq.map(val, function(value, index) {
+				return [value];
+			    });
+			
+			for( var i = 0; i < array.length; i++ ){
+				if( current_val <= array[i]  ){
+					condition_matched = true;
+				}
+			}
+		    }
                     
                     break;
                     
@@ -208,6 +242,17 @@ jQuery( document ).ready( function(){
                     
                     if( current_val >= val  )
                         condition_matched = true;
+		    else {
+			var array = jq.map(val, function(value, index) {
+				return [value];
+			    });
+			
+			for( var i = 0; i < array.length; i++ ){
+				if( current_val >= array[i]  ){
+					condition_matched = true;
+				}
+			}
+		    }
                     
                     break;
                     
@@ -215,6 +260,17 @@ jQuery( document ).ready( function(){
                     
                     if( current_val <val  )
                         condition_matched = true;
+		    else {
+			var array = jq.map(val, function(value, index) {
+				return [value];
+			    });
+			
+			for( var i = 0; i < array.length; i++ ){
+				if( current_val < array[i]  ){
+					condition_matched = true;
+				}
+			}
+		    }
                     
                     break;
                     
@@ -223,6 +279,17 @@ jQuery( document ).ready( function(){
                     
                     if( current_val > val  )
                         condition_matched = true;
+		    else {
+			var array = jq.map(val, function(value, index) {
+				return [value];
+			    });
+			
+			for( var i = 0; i < array.length; i++ ){
+				if( current_val > array[i]  ){
+					condition_matched = true;
+				}
+			}
+		    }
                     
                     break;
                     
@@ -351,6 +418,8 @@ jQuery( document ).ready( function(){
         }else{
          
             parent_div.hide();
+	    if( parent_div.find('input').val() == '' || parent_div.find('input').val() == null )
+		parent_div.find('input').val(' ');
             //cler values
            // jq(identifier).val('');
         }    
