@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Conditional Profile Fields for BuddyPress
+ * Plugin Name: Conditional Profile Feilds for BuddyPress
  * Version: 1.1.3
  * Author: Brajesh Singh, Anu Sharma
  * Plugin URI: http://buddydev.com/plugins/conditional-profile-fields-for-buddypress/
@@ -229,7 +229,7 @@ class Devb_Conditional_Xprofile_Field_Helper {
 
 		$operator = bp_xprofile_get_meta( $field_id, 'field', 'xprofile_condition_operator' );
 
-		$value = bp_xprofile_get_meta( $field_id, 'field', 'xprofile_condition_other_field_value' );
+		$value2 = bp_xprofile_get_meta( $field_id, 'field', 'xprofile_condition_other_field_value' );
 
 		//check if it was a muti type field, then we need to send the name as value instead of id
 
@@ -239,15 +239,17 @@ class Devb_Conditional_Xprofile_Field_Helper {
 
 		//is the related field having multi type?
 		$children = $related_field->get_children();
-
+		$value = array();
 		if ( ! empty( $children ) ) {
 			//if yes, we need to replace the value(as the value is id of the child option) with the name of the child option
 			foreach ( $children as $child ) {
 
-				if ( $child->id == $value ) {
+				if ( in_array( $child->id, $value2 ) ) {
+					
+					array_push( $value, $child->name );
 
-					$value = stripslashes( $child->name );
-					break;
+					//$value = stripslashes( $child->name );
+					//break;
 				}
 			}
 		}
