@@ -49,28 +49,28 @@ jQuery( document ).ready( function(){
 	//2. Check the fields on initial page load for a match
 	
 	for( var j=0; j<multifields.length; j++ ) {
+		
 		var selector = '';
 		
-		if( all_fields[multifields[j]]['type'] =='radiobutton' ){
+		if ( all_fields[multifields[j]]['type'] =='radiobutton' ) {
 			selector = '#'+multifields[j] + ' input';
-			
-			
-		}else{
+						
+		} else {
 			var identifier = multifields[j]+'\[\]';
 			selector =  "[name='"+identifier +"']";
 			
-			
 		}
+		
 		if( selector ) {
 			
 			add_condition( selector );
 			
-			if( has_data ){
-				
+			if( has_data ) {
 				apply_initial_condition( multifields[j] );
-			}else
+				
+			} else {
 				apply_condition(jq( selector ) );
-			
+			}
 		}
 		
 	}

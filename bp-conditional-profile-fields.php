@@ -1,12 +1,12 @@
 <?php
 /**
  * Plugin Name: Conditional Profile Fields for BuddyPress
- * Version: 1.1.3
+ * Version: 1.1.4
  * Author: Brajesh Singh, Anu Sharma
  * Plugin URI: http://buddydev.com/plugins/conditional-profile-fields-for-buddypress/
  * Author URI: http://buddydev.com
  * Description: Show/Hide profile fields depending on user data matching.
- * Last Updated: September 13, 2014
+ * Last Updated: November 3, 2015
  */
 
 /**
@@ -399,10 +399,19 @@ class Devb_Conditional_Xprofile_Field_Helper {
 			return;
 
 		$this->build_conditions();
+		
+		$fields = array();
+		foreach ( $this->fields as $field_id => $data ) {
+			$fields[$field_id] = array( 'type' => $data['type'] );
+		}
+		//some other day
+		$to_json =   array( 'fields'=> $fields, 'conditional_fields'=> $this->conditional_fields, 'data' => $this->data ) ;
+	
+		
 		?>
 		<script type='text/javascript'>
 
-			var xpfields = <?php echo json_encode( array( 'fields'=> $this->fields, 'conditional_fields'=> $this->conditional_fields, 'data' => $this->data ) ); ?>
+			var xpfields = <?php echo json_encode( $to_json ); ?>;
 
 		</script>
 		<?php
