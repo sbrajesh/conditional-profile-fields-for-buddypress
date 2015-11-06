@@ -128,6 +128,11 @@ class Devb_Conditional_Xprofile_Field_Helper {
 
 		foreach ( $groups as $group ) {
 
+			// skip if group has no profile fields
+			if ( empty( $group->fields ) ) {
+				continue;
+			} 
+
 			foreach ( $group->fields as $field ) {
 				
 				
