@@ -315,10 +315,11 @@ class Devb_Conditional_Profile_Admin{
             
             $html .= "</optgroup>"; 
             
-            echo $html;
             //$this->fields_info[]
             
         }
+
+        echo $html;
     }
     
 	/**
