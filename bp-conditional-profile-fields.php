@@ -74,7 +74,7 @@ class Devb_Conditional_Xprofile_Field_Helper {
 		//we don't dd any css at the moment
 		//add_action( 'bp_enqueue_scripts', array( $this, 'load_css' ) );
 		//inject the conditions as javascript object 
-		add_action( 'bp_head', array( $this, 'to_js_objects' ) );
+		add_action( 'wp_head', array( $this, 'to_js_objects' ), 100 );
 		
 		
 		//when the user account is activated, do not save the fields trigerred by the condition
@@ -399,25 +399,22 @@ class Devb_Conditional_Xprofile_Field_Helper {
 	 */
 	public function to_js_objects() {
 
-
-		if ( ! $this->is_active() )
-			return;
+		if ( ! function_exists('buddypress') || ! $this->is_active() ) {
+			return ;
+		}
 
 		$this->build_conditions();
-		
 		$fields = array();
+
 		foreach ( $this->fields as $field_id => $data ) {
 			$fields[$field_id] = array( 'type' => $data['type'] );
 		}
 		//some other day
 		$to_json =   array( 'fields'=> $fields, 'conditional_fields'=> $this->conditional_fields, 'data' => $this->data ) ;
-	
-		
+
 		?>
 		<script type='text/javascript'>
-
 			var xpfields = <?php echo json_encode( $to_json ); ?>;
-
 		</script>
 		<?php
 	}
