@@ -31,9 +31,7 @@ jQuery( document ).ready( function(){
     }
    //try to see if any condition matches and sho hide/show appropriate field on page load
     for( var j = 0; j< fields.length; j++ ) {
-      
         apply_initial_condition( fields[j] );
-        
     }
 	
     //bind the change event for the elemnts in fields array
@@ -240,10 +238,20 @@ jQuery( document ).ready( function(){
 		
 		var field_id = field.replace('#', '');
 		var current_val = data[field_id];
-		
-		if( current_val == undefined )
-			return ;
-		
+
+		//if no value, let us check the dom for selected value
+        if ( ! current_val ) {
+            //check dom for the value
+            var field = jQuery( '#'+field_id );
+            if ( field.get(0) ) {
+                current_val = field.val();
+            }
+        }
+
+        if ( current_val == undefined ) {
+            return ;
+        }
+
 		current_val = current_val.value;
 		
 		var related_conditional_field = conditional_fields[field_id];
