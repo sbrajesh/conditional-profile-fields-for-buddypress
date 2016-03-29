@@ -21,7 +21,6 @@ class Devb_Conditional_Profile_Admin{
             '>=' => 'Greater than or equal to',
             )
     );
-    
     private function __construct() {
        
         $this->path = plugin_dir_path( __FILE__ );

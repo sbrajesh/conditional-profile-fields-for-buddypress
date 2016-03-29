@@ -1,13 +1,12 @@
 <?php
 /**
  * Plugin Name: Conditional Profile Fields for BuddyPress
- * Version: 1.1.7
+ * Version: 1.1.8
  * Author: Brajesh Singh, Anu Sharma
  * Plugin URI: http://buddydev.com/plugins/conditional-profile-fields-for-buddypress/
  * Author URI: http://buddydev.com
  * Description: Show/Hide profile fields depending on user data matching.
- * Last Updated: February 14, 2016
- */
+ * */
 
 /**
  * Class name explanation
@@ -76,7 +75,6 @@ class Devb_Conditional_Xprofile_Field_Helper {
 		//inject the conditions as javascript object 
 		add_action( 'wp_head', array( $this, 'to_js_objects' ), 100 );
 		
-		
 		//when the user account is activated, do not save the fields trigerred by the condition
 		add_action( 'bp_core_activated_user', array( $this, 'update_saved_fields' ) );
 		
@@ -137,7 +135,7 @@ class Devb_Conditional_Xprofile_Field_Helper {
 				
 				
 				$this->fields['field_'. $field->id]['data'] = $field;
-				
+
 				$field = new BP_XProfile_Field( $field->id );
 				
 				//READ IT PLEASE
@@ -214,7 +212,7 @@ class Devb_Conditional_Xprofile_Field_Helper {
 					//'group_id'		=> $group->id,
 					//'field_id'		=> $field->id,
 					'field_type'	=> $field->type,
-					'value'			=> $field->data->value,
+					'value'			=> maybe_unserialize( $field->data->value ),
 				);
 			}
 		}
@@ -293,7 +291,7 @@ class Devb_Conditional_Xprofile_Field_Helper {
 			//for each field triggering the condition, get the field data for this field
 			$conditional_field_id = (int)str_replace('field_', '', $conditional_field_id );
 			
-			$data = xprofile_get_field_data( $conditional_field_id, $user_id, 'array' );
+			$data = xprofile_get_field_data( $conditional_field_id, $user_id );
 			
 			//find all the conditions which are based on the vale of this field
 			foreach( $related_fields['conditions'] as $condition ) {

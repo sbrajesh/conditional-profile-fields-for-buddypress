@@ -14,18 +14,14 @@ jQuery( document ).ready( function(){
 	//list of the fields which is either radio or checkbox and trigger some condition
 	var multifields = [];
 	
-		//Build the fields, multifields array
+	//Build the fields, multifields array
 		
-    for( var field_id in conditional_fields ){
+    for ( var field_id in conditional_fields ) {
 		
-		if( all_fields[field_id]['type'] == 'checkbox' || all_fields[field_id]['type'] == 'radiobutton' ) {
-			
+		if ( all_fields[field_id]['type'] == 'checkbox' || all_fields[field_id]['type'] == 'radiobutton' ) {
 			multifields.push(field_id);
-			
-		}else{
-        
-			fields.push( '#'+field_id );
-		
+		} else {
+        	fields.push( '#'+field_id );
 		}
 		
     }
@@ -36,7 +32,7 @@ jQuery( document ).ready( function(){
 	
     //bind the change event for the elemnts in fields array
     
-    jq(document). on( 'change', fields.join(','), function() {
+    jq(document).on( 'change', fields.join(','), function() {
         
        apply_condition( this );
         
@@ -46,7 +42,7 @@ jQuery( document ).ready( function(){
 	//1. adds an event listener
 	//2. Check the fields on initial page load for a match
 	
-	for( var j=0; j<multifields.length; j++ ) {
+	for ( var j = 0; j < multifields.length; j++ ) {
 		
 		var selector = '';
 		
@@ -59,15 +55,15 @@ jQuery( document ).ready( function(){
 			
 		}
 		
-		if( selector ) {
+		if ( selector ) {
 			
 			add_condition( selector );
 			
-			if( has_data ) {
+			if ( has_data ) {
 				apply_initial_condition( multifields[j] );
 				
 			} else {
-				apply_condition(jq( selector ) );
+				apply_condition( jq( selector ) );
 			}
 		}
 		
@@ -102,37 +98,43 @@ jQuery( document ).ready( function(){
 		
 		var id = '';
 		//find the element to hide
-		var type = jq(element).attr( 'type' );
+		var type = jq( element ).attr( 'type' );
 		var current_val = '';
 		
 		//I am not happy with the way we need to handle checkboxes her, It could be much better
 		
-		if(  type == 'checkbox' ) {
+		if (  type == 'checkbox' ) {
 		
 		
 			id = jq( element ).attr('name');
 			id = id.replace('\[\]', ''); //field_n[] to field_n
-			
-			//if( jq(element).is(':checked') )
-				current_val = jq( element).parents('.checkbox').find('input:checked').val();
-			
+			var selected_val=[];
+			//if ( jq(element).is(':checked') ) {
+				var $selected = jq( element).parents('.checkbox').find('input:checked');
+				jQuery.each( $selected, function (index, $el ) {
+
+					selected_val.push( jq(this).val() );
+				});
+			current_val = selected_val;
+
+			//}
+
 			done = true;
 		}
 		
-		if( !done && type == 'radio' ) {
+		if( ! done && type == 'radio' ) {
 			
-			id = jq(element).attr('name');
+			id = jq( element ).attr('name');
 			current_val = jq( element).parents('.radio').find('input:checked').val();
 			done = true;
 			
 		}
 		//we do not support datebox yet
-		if( !done &&  type =='datebox' ){
-			
-			
+		if ( ! done &&  type =='datebox' ) {
 			done = true;
 		}
-		if( !done ){
+
+		if ( ! done ) {
 			//it is neither of the above,
 			
 			id = jq( element ).attr('id');
@@ -141,27 +143,28 @@ jQuery( document ).ready( function(){
         
 		
 		//we know id
-       if( ! id )
+       if ( ! id ) {
 		   return;
-        
+	   }
+
         //get the field associated with this condition
         var field = conditional_fields[id];
-		
+
 		//is there really a condition associated with field, if not, do not proceed
-        if( field == undefined)
-            return;
-        
+        if ( field == undefined ) {
+			return;
+		}
+
         //if we are here, process the conditions
-        for( var i =0; i< field.conditions.length; i++ ) {
+        for ( var i = 0; i < field.conditions.length; i++ ) {
             
             //apply each condition which depend on this field
             var condition = field.conditions[i];
-          
+
             var matched = is_match( current_val, condition.value, condition.operator );
                         
             show_hide_field( condition.field_id, condition.visibility, matched );
-            
-            
+
         }
      
         
@@ -175,66 +178,81 @@ jQuery( document ).ready( function(){
      * @param {type} operator
      * @returns {Boolean}
      */
-    function is_match( current_val, val, operator ){
-        
-        var condition_matched = false;
-        
-            switch( operator ) {
-                
-                case '=':
-                    
-                    if( current_val == val  )
-                        condition_matched = true;
-                    
-                    break;
-                    
-                case '!=':
-                    
-                    if( current_val != val  )
-                        condition_matched = true;
-                    
-                    break;
-                    
-                case '<=':
-                    
-                    if( current_val <= val  )
-                        condition_matched = true;
-                    
-                    break;
-                    
-                case '>=':
-                    
-                    if( current_val >= val  )
-                        condition_matched = true;
-                    
-                    break;
-                    
-                case '<':
-                    
-                    if( current_val <val  )
-                        condition_matched = true;
-                    
-                    break;
-                    
-                
-                case '>':
-                    
-                    if( current_val > val  )
-                        condition_matched = true;
-                    
-                    break;
-                    
-              
-                    
-                
-                
-            }
-            
-            return condition_matched;
+    function is_match( selected_val, val, operator ){
+
+		var values = [];
+		if( !jQuery.isArray(selected_val ) ) {
+			values.push(selected_val);
+		} else {
+			values = selected_val;//it is array
+		}
+
+
+
+		for( var i = 0; i< values.length; i++ ) {
+			if ( test_value(values[i], val, operator ) ) {
+				return true; //bad coding I know
+			}
+		}
+
+		return false;
+
     }
-	
+
+	function test_value(current_val, val, operator ) {
+
+		var condition_matched = false;
+		switch( operator ) {
+
+			case '=':
+
+				if ( current_val == val  )
+					condition_matched = true;
+
+				break;
+
+			case '!=':
+
+				if ( current_val != val  )
+					condition_matched = true;
+
+				break;
+
+			case '<=':
+
+				if ( current_val <= val  )
+					condition_matched = true;
+
+				break;
+
+			case '>=':
+
+				if ( current_val >= val  )
+					condition_matched = true;
+
+				break;
+
+			case '<':
+
+				if ( current_val <val  )
+					condition_matched = true;
+
+				break;
+
+
+			case '>':
+
+				if ( current_val > val  )
+					condition_matched = true;
+
+				break;
+
+		}
+
+		return condition_matched;
+	}
 	//will improve in future
-	function apply_initial_condition( field ){
+	function apply_initial_condition( field ) {
 		
 		var field_id = field.replace('#', '');
 		var current_val = data[field_id];
@@ -248,15 +266,16 @@ jQuery( document ).ready( function(){
             }
         }
 
+
         if ( current_val == undefined ) {
-            return ;
+            current_val = '' ;
         }
 
 		current_val = current_val.value;
 		
 		var related_conditional_field = conditional_fields[field_id];
 		 //if we are here, process the conditions
-        for( var i = 0; i< related_conditional_field.conditions.length; i++ ) {
+        for ( var i = 0; i< related_conditional_field.conditions.length; i++ ) {
             
             //apply each condition which depend on this field
             var condition = related_conditional_field.conditions[i];
@@ -271,7 +290,7 @@ jQuery( document ).ready( function(){
     /**
      * Sow or Hide an entry in the form, hides whole editable div
      * It is based on the assumption that BuddyPress profile edit field parent div have a class 'editfield' and another class 'field_id'
-     * This hould work for 98% of the themes
+     * This should work for 98% of the themes
      * For the rest 2 % blame their developers :D
      * 
      * 
@@ -290,39 +309,35 @@ jQuery( document ).ready( function(){
 		
 		//find the element to hide
 		
-		if(  field['type'] == 'checkbox' ) {
+		if (  field['type'] == 'checkbox' ) {
 			
-			var identifier = '';
-			identifier = 'field_' + field_id+'\[\]';
+			var identifier = 'field_' + field_id+'\[\]';
 			
 			element = jq( "[name='"+identifier +"']");
-			
-
 			done = true;
-		
-			
+
 		}
 		
-		if( !done && field['type'] == 'radiobutton' ) {
+		if ( ! done && field['type'] == 'radiobutton' ) {
 			
 			element = jq('#field_'+field_id);
 			
 			done = true;
 			
 		}
-		if( !done &&  field['type'] =='datebox' ){
+		if ( ! done &&  field['type'] =='datebox' ) {
 			
 			element = jq('#field_' + field_id + '_day' );
 			done = true;
 		}
-		if( !done ){
+		if ( ! done ) {
 			//it is neither of the above,
 			
 			element = jq( '#field_'+field_id );
 			done = true;
 		}
 		
-		 if( !element )
+		 if ( ! element )
            console.log( 'Conditional Profile Fields:There seems to be some html issue and I am not able to fix it, Please tell that to the developer: field_id:'+field_id );
        
 		
@@ -334,29 +349,22 @@ jQuery( document ).ready( function(){
         //make sure that the field is not datebox, in case of  datebox, the element does not exist
         
         var parent_div = jq( jq( element ).parents( '.editfield' ).get(0) );
-	
-       
-		
+
         //;find its parent having class edit field
-        if( !match ){
+        if ( ! match ) {
             //if the condition did not match, reverse visibility condition
             
-            if( visibility == 'show' ) {
+            if ( visibility == 'show' ) {
+            	visibility = 'hide';
                 
-                visibility = 'hide';
-                
-            }else {
-                
-                visibility = 'show';
-                
+            } else {
+            	visibility = 'show';
             }    
         }
         
-        if( visibility =='show' ) {
-        
+        if ( visibility == 'show' ) {
             parent_div.show();
-        
-        }else{
+        } else {
          
             parent_div.hide();
             //cler values
