@@ -325,7 +325,7 @@ jQuery( document ).ready( function(){
 			done = true;
 			
 		}
-		if ( ! done &&  field['type'] =='datebox' ) {
+		if ( ! done &&  ( field['type'] =='datebox' || field['type'] =='birthdate' ) ) {
 			
 			element = jq('#field_' + field_id + '_day' );
 			done = true;
@@ -337,7 +337,7 @@ jQuery( document ).ready( function(){
 			done = true;
 		}
 		
-		 if ( ! element )
+		 if ( ! element.get(0) )
            console.log( 'Conditional Profile Fields:There seems to be some html issue and I am not able to fix it, Please tell that to the developer: field_id:'+field_id );
        
 		
