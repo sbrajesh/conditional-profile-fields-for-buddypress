@@ -1,13 +1,15 @@
 <?php
 /**
  * Plugin Name: Conditional Profile Fields for BuddyPress
- * Version: 1.1.9
+ * Version: 1.2.0
  * Author: Brajesh Singh, Anu Sharma
- * Plugin URI: http://buddydev.com/plugins/conditional-profile-fields-for-buddypress/
- * Author URI: http://buddydev.com
+ * Plugin URI: https://buddydev.com/plugins/conditional-profile-fields-for-buddypress/
+ * Author URI: https://buddydev.com
  * Description: Show/Hide profile fields depending on user data matching.
  */
-
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 /**
  * Class name explanation
  * 'Devb' is the string that we have started using for any code form BuddyDev( DevB in reverseorder)
