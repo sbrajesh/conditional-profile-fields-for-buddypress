@@ -33,7 +33,7 @@ jQuery( document ).ready( function ( $ ) {
         var field = all_fields[field_id];
 
         // must be a valid existing field and supported too.
-        if ( ! field || field['type'] == 'datebox' ) {
+        if ( ! field || field['type'] == 'datebox' || field['type'] == 'birthdate') {
             continue;
         }
 
@@ -54,6 +54,7 @@ jQuery( document ).ready( function ( $ ) {
         }
 
         if ( ! found ) {
+            console.log( "Unable to understand field id:" + field_id );
             // we were unable to understand the field type and field.
             // need to check extra. here?
             // @todo in future.
