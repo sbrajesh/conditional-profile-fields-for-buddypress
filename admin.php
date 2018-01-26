@@ -35,6 +35,7 @@ class Devb_Conditional_Profile_Admin{
         add_action( 'bp_admin_enqueue_scripts', array( $this, 'load_admin_css' ) );
         
         add_action( 'admin_footer', array(  $this, 'to_js_objects' ) );
+        add_action( 'xprofile_admin_field_name_legend', array( $this, 'show_field_list_condition' ) );
     }
     
     public static function get_instance() {
@@ -383,6 +384,28 @@ class Devb_Conditional_Profile_Admin{
         return false;
         
     }
+
+	/**
+     * Show the condition alongside the title on Dashboard->Users->Profile Fields screen.
+	 * @param BP_XProfile_Field $field field object.
+	 */
+	public function show_field_list_condition( $field ) {
+		$visibility = $this->get_visibility( $field->id );
+
+		if ( ! $visibility ) {
+			return;
+		}
+
+		$other_field = $this->get_other_field_id( $field->id );
+		$other_field = xprofile_get_field( $other_field );
+		if ( $other_field ) {
+			$other_field = $other_field->name;
+		}
+		$operator  = $this->get_operator( $field->id );
+		$value     = $this->get_other_field_value( $field->id );
+		$condition = "[ {$visibility} if {{$other_field}}  {$operator} {$value} ]";
+		echo '<span class="cpffbp-field-list">&nbsp;&nbsp;' . $condition . '</span>';
+	}
 }
 
 Devb_Conditional_Profile_Admin::get_instance();
