@@ -7,6 +7,7 @@
  * Author URI: https://buddydev.com
  * Description: Show/Hide profile fields depending on user data matching.
  */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
@@ -95,7 +96,7 @@ class Devb_Conditional_Xprofile_Field_Helper {
 		add_action( 'wp_head', array( $this, 'to_js_objects' ), 100 );
 
 		// when the user account is activated,
-		// do not save the fields trigerred by the condition.
+		// do not save the fields triggered by the condition.
 		add_action( 'bp_core_activated_user', array( $this, 'update_saved_fields' ) );
 
 		// when user profile is updated,
@@ -222,13 +223,14 @@ class Devb_Conditional_Xprofile_Field_Helper {
 					//'group_id'		=> $group->id,
 					//'field_id'		=> $field->id,
 					'field_type' => $field->type,
-					'value'      => maybe_unserialize( $field->data->value ),
+					'value'      => $this->entity_decode( maybe_unserialize( $field->data->value ) ),
 				);
 			}
 		}
 
 		return $data;
 	}
+
 
 	/**
 	 * Get the condition applied on a field
@@ -305,7 +307,7 @@ class Devb_Conditional_Xprofile_Field_Helper {
 			$conditional_field_id = (int) str_replace( 'field_', '', $conditional_field_id );
 
 			$data = xprofile_get_field_data( $conditional_field_id, $user_id );
-
+			$data = $this->entity_decode( $data );
 			// find all the conditions which are based on the vale of this field.
 			foreach ( $related_fields['conditions'] as $condition ) {
 
@@ -319,7 +321,7 @@ class Devb_Conditional_Xprofile_Field_Helper {
 					}
 				} else {
 					// if there is no match and the visibility is set to show on condition,
-                    // we still need to delete the data for the field on which this condition is applied.
+					// we still need to delete the data for the field on which this condition is applied.
 					if ( $condition['visibility'] === 'show' ) {
 						xprofile_delete_field_data( $condition['field_id'], $user_id );
 					}
@@ -401,6 +403,8 @@ class Devb_Conditional_Xprofile_Field_Helper {
 
 	/**
 	 * Injects the profile field conditions a js object
+	 *
+	 * @return array
 	 */
 	public function to_js_objects() {
 
@@ -421,11 +425,7 @@ class Devb_Conditional_Xprofile_Field_Helper {
 			'data'               => $this->data,
 		);
 
-		?>
-        <script type='text/javascript'>
-            var xpfields = <?php echo json_encode( $to_json ); ?>;
-        </script>
-		<?php
+		return $to_json;
 	}
 
 	/**
@@ -453,8 +453,8 @@ class Devb_Conditional_Xprofile_Field_Helper {
 			return;
 		}
 
-
 		wp_enqueue_script( 'bp-conditional-profile-js', $this->url . 'assets/bp-conditional-field.js', array( 'jquery' ) );
+		wp_localize_script( 'bp-conditional-profile-js', 'xpfields', $this->to_js_objects() );
 	}
 
 	/**
@@ -468,6 +468,24 @@ class Devb_Conditional_Xprofile_Field_Helper {
 		}
 
 		wp_enqueue_script( 'bp-conditional-profile-css', $this->url . 'assets/bp-conditional-field.css' );
+	}
+
+	/**
+	 * Decode html entities in the value.
+	 *
+	 * @param mixed|string|array $data value.
+	 *
+	 * @return array|string
+	 */
+	private function entity_decode( $data ) {
+		if ( $data && is_array( $data ) ) {
+			$data = array_map( 'html_entity_decode', $data );
+		} elseif ( $data ) {
+			$data = html_entity_decode( $data );
+		}
+
+		return $data;
+
 	}
 
 }
