@@ -158,9 +158,11 @@ jQuery( document ).ready( function ( $ ) {
             current_val = $el.val();
         } else {
             // multi field.
-            current_val = $field.find( '.input-options input:checked' ).val();
+            current_val = [];
+            $field.find( '.input-options input:checked' ).each( function (){
+                current_val.push( $(this).val());
+            });
         }
-
         apply_trigger_change( current_val, trigger_field );
     }
 
@@ -225,7 +227,7 @@ jQuery( document ).ready( function ( $ ) {
      *
      * @param {int} field_id
      * @param {type} visibility
-     * @param boolean match reverses visibility condition
+     * @param {boolean} match reverses visibility condition
      * @returns {undefined}
      */
     function show_hide_field( field_id, visibility, match ) {
@@ -257,7 +259,7 @@ jQuery( document ).ready( function ( $ ) {
     /**
      * Check if the current value matches the conditional value
      *
-     * @param {type} current_val
+     * @param {type} selected_val
      * @param {type} val
      * @param {type} operator
      * @returns {Boolean}
