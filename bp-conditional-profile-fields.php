@@ -163,6 +163,10 @@ class Devb_Conditional_Xprofile_Field_Helper {
 				// let us get the children.
 				$children = $field->get_children();
 
+				if( ( 'membertype' === $field->type || 'membertypes' == $field->type ) && function_exists( 'bpmtp_get_member_type_options' ) ) {
+					//children =
+				}
+
 				if ( ! empty( $children ) ) {
 					$this->fields[ 'field_' . $field->id ]['children'] = $children;
 				}
@@ -308,6 +312,12 @@ class Devb_Conditional_Xprofile_Field_Helper {
 
 			$data = xprofile_get_field_data( $conditional_field_id, $user_id );
 			$data = $this->entity_decode( $data );
+			$field = xprofile_get_field( $conditional_field_id );
+
+			if ( 'membertype' == $field->type || 'membertypes' == $field->type ) {
+				$data = bp_get_member_type( $user_id, true );
+			}
+
 			// find all the conditions which are based on the vale of this field.
 			foreach ( $related_fields['conditions'] as $condition ) {
 

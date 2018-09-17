@@ -280,6 +280,7 @@ class Devb_Conditional_Profile_Admin {
 					if ( $other_field_id ) {
 						$other_field = new BP_XProfile_Field( $other_field_id );
 						$children    = $other_field->get_children();
+                        $children = apply_filters( 'cpffb_admin_field_options', $children, $other_field );
 
 						if ( $children ) {
 							//multi field
