@@ -24,11 +24,12 @@ jQuery( document ).ready( function ( $ ) {
 
         var $field = $( '.' + field_id );
 
-        if ( ! $field.get( 0 ) ) {
-            continue;// the field does not exist on this page.
+        if ( $field.get( 0 ) ) {
+            //continue;// the field does not exist on this page.
+            // store the field id as a data attribute.
+            $field.data( 'cpfb-field-id', field_id );
         }
-        // store the field id as a data attribute.
-        $field.data( 'cpfb-field-id', field_id );
+
 
         var field = all_fields[field_id];
 
@@ -41,19 +42,21 @@ jQuery( document ).ready( function ( $ ) {
 
         var found = true;// assume we found the field type.
 
-        if ( $field.find( '.input-options' ).get( 0 ) ) {
+        if ( $field.find( '.input-options' ).get( 0 ) || $.inArray( field_type, ['radiobutton', 'checkbox'] ) !== -1 ) {
             // radio or checkbox.
             multi_fields.push( field_id );
-        } else if ( $field.find( 'select' ).get( 0 ) ) {
+        } else if ( $field.find( 'select' ).get( 0 ) || $.inArray( field_type, ['selectbox', 'multiselectbox'] ) !== -1 ) {
             // select or multi select field.
             select_fields.push( field_id );
-        } else if ( $.inArray( field_type, [ 'textbox', 'textarea', 'url', 'number' ] ) !== -1 ) {
+        } else if ( $.inArray( field_type, [ 'textbox', 'textarea', 'url', 'web', 'number', 'decimal_number', 'number_minmax', 'email', 'color' ] ) !== -1 ) {
             fields.push( field_id );
         } else {
             found = false;
         }
 
         if ( ! found ) {
+            // detect field type if possible.
+
             console.log( "Unable to understand field id:" + field_id );
             // we were unable to understand the field type and field.
             // need to check extra. here?
@@ -181,16 +184,17 @@ jQuery( document ).ready( function ( $ ) {
             //check dom for the value
             var $field = $( '.' + field_id );
 
-            if ( ! $field.get( 0 ) ) {
-                return;
-            }
+            if ( $field.get( 0 ) ) {
 
-            if ( $.inArray( field_id, multi_fields ) === -1 ) {
-                // not a multi field.
-                current_val = $( '#' + field_id ).val();
-            } else {
-                // multi field.
-                current_val = $field.find( '.input-options input:checked' ).val();
+                if ($.inArray(field_id, multi_fields) === -1) {
+                    // not a multi field.
+                    current_val = $('#' + field_id).val();
+                } else {
+                    // multi field.
+                    current_val = $field.find('.input-options input:checked').val();
+                }
+            } else{
+                current_val = '';
             }
         }
 
