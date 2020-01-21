@@ -285,7 +285,7 @@ class Devb_Conditional_Profile_Admin {
 						if ( $children ) {
 							//multi field
 							foreach ( $children as $child_field ) {
-								$options .= "<label><input type='radio' value='{$child_field->id}'" . checked( $other_field_value, $child_field->id, false ) . " name='xprofile-condition-other-field-value' />{$child_field->name}</label>";
+								$options .= "<label><input type='checkbox' value='{$child_field->id}'" . checked( $other_field_value, $child_field->id, false ) . " name='xprofile-condition-other-field-value[]' />{$child_field->name}</label>";
 							}
 						} else {
 							$options = "<input type='text' name='xprofile-condition-other-field-value' id='xprofile-condition-other-field-value' class='xprofile-condition-other-field-value-single' value ='{$other_field_value}'; />";
