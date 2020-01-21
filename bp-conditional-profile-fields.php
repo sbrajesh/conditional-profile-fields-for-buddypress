@@ -263,6 +263,10 @@ class Devb_Conditional_Xprofile_Field_Helper {
 		if ( ! empty( $children ) ) {
 			// if yes, we need to replace the value(as the value is id of the child option)
 			// with the name of the child option.
+			
+			// if the value is an array of ids, store here the respective names
+			$array_value = [];
+
 			foreach ( $children as $child ) {
 
 				if ( $child->id == $value ) {
@@ -270,7 +274,14 @@ class Devb_Conditional_Xprofile_Field_Helper {
 					$value = stripslashes( $child->name );
 					break;
 				}
+
+				if ( is_array( $value ) && in_array( $child->id, $value ) ) {
+					array_push( $array_value, $child->name );
+				}
 			}
+
+			// if the value is an array of ids, than replace it with the array of names
+			if ( is_array( $value ) ) $value = $array_value;
 		}
 
 		return compact( 'field_id', 'visibility', 'operator', 'value' );
@@ -357,9 +368,11 @@ class Devb_Conditional_Xprofile_Field_Helper {
 
 			case '=':
 
-				if ( ! is_array( $current_val ) && $current_val == $val ) {
+				if ( ! is_array( $current_val ) && ! is_array($val) && $current_val == $val ) {
 					$matched = true;
-				} elseif ( is_array( $current_val ) && in_array( $val, $current_val ) ) {
+				} elseif ( is_array( $current_val ) && ! is_array($val) && in_array( $val, $current_val ) ) {
+					$matched = true;
+				} elseif ( !is_array( $current_val ) && is_array($val) && in_array($current_val, $val) ) {
 					$matched = true;
 				}
 				break;

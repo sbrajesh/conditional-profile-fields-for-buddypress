@@ -153,7 +153,23 @@ class Devb_Conditional_Profile_Admin {
 	public function sanitize_value( $value, $field_id ) {
 
 		$field = new BP_XProfile_Field( $field_id );
+		
+		// if it is an array, sanitize the values inside it
+		if ( is_array( $value ) ) {
+			foreach ( $value as $val ) {
+				$val = $this->_sanitize_single_value( $val, $field );
+			}
+
+			return $value;
+		}
+
+		// if it isn't an array, just sanitize the value and return it
+		return $this->_sanitize_single_value( $value, $field );
+	}
+
+	public function _sanitize_single_value( $value, $field ) {
 		// in case of textarea/textbox the value needs to be sanitized, else just int?
+
 		if ( $field->type == 'textbox' || $field->type = 'textarea' ) {
 			return esc_attr( $value );
 		};
@@ -166,7 +182,6 @@ class Devb_Conditional_Profile_Admin {
 		// otherwise cast to number type
 		// or should we only go with int?
 		return (float) $value;
-
 	}
 
 	/**
@@ -285,7 +300,16 @@ class Devb_Conditional_Profile_Admin {
 						if ( $children ) {
 							//multi field
 							foreach ( $children as $child_field ) {
-								$options .= "<label><input type='checkbox' value='{$child_field->id}'" . checked( $other_field_value, $child_field->id, false ) . " name='xprofile-condition-other-field-value[]' />{$child_field->name}</label>";
+								// cannot use the "checked" function from WP because it doesn't account for arrays
+								$checked = "";
+
+								// if it isn't an array, convert it into one
+								if (!is_array($other_field_value)) $other_field_value = [$other_field_value];
+
+								if (in_array($child_field->id, $other_field_value)) {
+									$checked = " checked=\"checked\" ";
+								}
+								$options .= "<label><input type='checkbox' value='{$child_field->id}'" . $checked . " name='xprofile-condition-other-field-value[]' />{$child_field->name}</label>";
 							}
 						} else {
 							$options = "<input type='text' name='xprofile-condition-other-field-value' id='xprofile-condition-other-field-value' class='xprofile-condition-other-field-value-single' value ='{$other_field_value}'; />";
@@ -440,6 +464,9 @@ class Devb_Conditional_Profile_Admin {
 		}
 		$operator  = $this->get_operator( $field->id );
 		$value     = $this->get_other_field_value( $field->id );
+
+		if (is_array($value)) $value = implode(" or ", $value);
+
 		$condition = "[ {$visibility} if {{$other_field}}  {$operator} {$value} ]";
 		echo '<span class="cpffbp-field-list">&nbsp;&nbsp;' . $condition . '</span>';
 	}
