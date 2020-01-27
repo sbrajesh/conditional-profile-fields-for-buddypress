@@ -1,4 +1,4 @@
-jQuery( document ).ready( function ( $ ) {
+jQuery(document).ready(function ($) {
     // all bp fields info.
     var all_fields = xpfields.fields;
     // only fields which are used to trigger conditions.
@@ -6,7 +6,7 @@ jQuery( document ).ready( function ( $ ) {
     // only for logged user, this is fetched if the user is logged in and depends on whether viewing a profile or not
     var data = xpfields.data;
 
-    var has_data = !jQuery.isEmptyObject( data );
+    var has_data = !jQuery.isEmptyObject(data);
 
     // building a list of normal fields(except checkboxes/radio) that trigger a visibility condition.
     var fields = [];
@@ -16,25 +16,25 @@ jQuery( document ).ready( function ( $ ) {
     var select_fields = [];
 
     //Build the fields, multi fields array
-    for ( var field_id in conditional_fields ) {
+    for (var field_id in conditional_fields) {
 
-        if ( ! conditional_fields.hasOwnProperty( field_id ) ) {
+        if (!conditional_fields.hasOwnProperty(field_id)) {
             continue;
         }
 
-        var $field = $( '.' + field_id );
+        var $field = $('.' + field_id);
 
-        if ( $field.get( 0 ) ) {
+        if ($field.get(0)) {
             //continue;// the field does not exist on this page.
             // store the field id as a data attribute.
-            $field.data( 'cpfb-field-id', field_id );
+            $field.data('cpfb-field-id', field_id);
         }
 
 
         var field = all_fields[field_id];
 
         // must be a valid existing field and supported too.
-        if ( ! field || field['type'] == 'datebox' || field['type'] == 'birthdate') {
+        if (!field || field['type'] == 'datebox' || field['type'] == 'birthdate') {
             continue;
         }
 
@@ -42,22 +42,22 @@ jQuery( document ).ready( function ( $ ) {
 
         var found = true;// assume we found the field type.
 
-        if ( $field.find( '.input-options' ).get( 0 ) || $.inArray( field_type, ['radiobutton', 'checkbox'] ) !== -1 ) {
+        if ($field.find('.input-options').get(0) || $.inArray(field_type, ['radiobutton', 'checkbox']) !== -1) {
             // radio or checkbox.
-            multi_fields.push( field_id );
-        } else if ( $field.find( 'select' ).get( 0 ) || $.inArray( field_type, ['selectbox', 'multiselectbox'] ) !== -1 ) {
+            multi_fields.push(field_id);
+        } else if ($field.find('select').get(0) || $.inArray(field_type, ['selectbox', 'multiselectbox']) !== -1) {
             // select or multi select field.
-            select_fields.push( field_id );
-        } else if ( $.inArray( field_type, [ 'textbox', 'textarea', 'url', 'web', 'number', 'decimal_number', 'number_minmax', 'email', 'color' ] ) !== -1 ) {
-            fields.push( field_id );
+            select_fields.push(field_id);
+        } else if ($.inArray(field_type, ['textbox', 'textarea', 'url', 'web', 'number', 'decimal_number', 'number_minmax', 'email', 'color']) !== -1) {
+            fields.push(field_id);
         } else {
             found = false;
         }
 
-        if ( ! found ) {
+        if (!found) {
             // detect field type if possible.
 
-            console.log( "Unable to understand field id:" + field_id );
+            console.log("Unable to understand field id:" + field_id);
             // we were unable to understand the field type and field.
             // need to check extra. here?
             // @todo in future.
@@ -69,39 +69,39 @@ jQuery( document ).ready( function ( $ ) {
     // Step 1: Setup triggers.
     // Set trigger for simple fields.
     var simple_field_selectors = [];
-    for ( var i = 0; i < fields.length; i++) {
-        simple_field_selectors.push( '#' + fields[i] );
+    for (var i = 0; i < fields.length; i++) {
+        simple_field_selectors.push('#' + fields[i]);
     }
 
     // trigger for normal fields.'text', 'number' etc.
-    if ( simple_field_selectors.length > 0 ) {
-        $( document ).on( 'change', simple_field_selectors.join( ',' ), function () {
-            apply_condition( this );
-        } );
+    if (simple_field_selectors.length > 0) {
+        $(document).on('change', simple_field_selectors.join(','), function () {
+            apply_condition(this);
+        });
     }
 
     // 1.B Set trigger for radio, checkboxes.
     var multifield_selectors = [];// reset.
-    for ( var i = 0; i < multi_fields.length; i++ ) {
-        multifield_selectors.push( '.' + multi_fields[i] + ' .input-options input' );
+    for (var i = 0; i < multi_fields.length; i++) {
+        multifield_selectors.push('.' + multi_fields[i] + ' .input-options input');
     }
 
-    if ( multifield_selectors.length > 0 ) {
-        $( document ).on( 'click', multifield_selectors.join( ',' ), function () {
-            apply_condition( this );
-        } );
+    if (multifield_selectors.length > 0) {
+        $(document).on('click', multifield_selectors.join(','), function () {
+            apply_condition(this);
+        });
     }
 
     // 1.C Set trigger for select fields.
     var select_fields_selectors = [];
-    for ( var i = 0; i < select_fields.length; i++ ) {
-        select_fields_selectors.push( '.' + select_fields[i] + ' select' );
+    for (var i = 0; i < select_fields.length; i++) {
+        select_fields_selectors.push('.' + select_fields[i] + ' select');
     }
 
-    if ( select_fields_selectors.length > 0 ) {
-        $( document ).on( 'change', select_fields_selectors.join( ',' ), function () {
-            apply_condition( this );
-        } );
+    if (select_fields_selectors.length > 0) {
+        $(document).on('change', select_fields_selectors.join(','), function () {
+            apply_condition(this);
+        });
     }
 
     // Apply initial conditions on page load.
@@ -109,18 +109,18 @@ jQuery( document ).ready( function ( $ ) {
 
     // 2.A simple field.
     // test only after has_data??
-    for ( var i = 0; i < fields.length; i++ ) {
-        apply_initial_condition( fields[ i ] );
+    for (var i = 0; i < fields.length; i++) {
+        apply_initial_condition(fields[i]);
     }
 
     // 2.B Multi Field.
-    for ( var i = 0; i < multi_fields.length; i++ ) {
-        apply_initial_condition( multi_fields[ i ] );
+    for (var i = 0; i < multi_fields.length; i++) {
+        apply_initial_condition(multi_fields[i]);
     }
 
     // 2.C Select fields.
-    for ( var i = 0; i < select_fields.length; i++ ) {
-        apply_initial_condition( select_fields[ i ] );
+    for (var i = 0; i < select_fields.length; i++) {
+        apply_initial_condition(select_fields[i]);
     }
 
 
@@ -130,43 +130,43 @@ jQuery( document ).ready( function ( $ ) {
      * @param {type} element
      * @returns {undefined}
      */
-    function apply_condition( element ) {
+    function apply_condition(element) {
 
-        var $el = $( element );
-        var $field = $el.parents( '.editfield' );
+        var $el = $(element);
+        var $field = $el.parents('.editfield');
 
-        if ( ! $field.get( 0 ) ) {
+        if (!$field.get(0)) {
             // log error, return.
         }
 
-        var id = $field.data( 'cpfb-field-id' );
+        var id = $field.data('cpfb-field-id');
 
-        if ( ! id ) {
+        if (!id) {
             // log error
             // return
         }
 
         //get the field associated with this condition
-        var trigger_field = conditional_fields[ id ];
+        var trigger_field = conditional_fields[id];
 
         //is there really a condition associated with field, if not, do not proceed
-        if ( trigger_field === undefined ) {
+        if (trigger_field === undefined) {
             return;
         }
 
         var current_val = '';
 
-        if ( $.inArray( id, multi_fields ) === -1 ) {
+        if ($.inArray(id, multi_fields) === -1) {
             // not a multi field.
             current_val = $el.val();
         } else {
             // multi field.
             current_val = [];
-            $field.find( '.input-options input:checked' ).each( function (){
-                current_val.push( $(this).val());
+            $field.find('.input-options input:checked').each(function () {
+                current_val.push($(this).val());
             });
         }
-        apply_trigger_change( current_val, trigger_field );
+        apply_trigger_change(current_val, trigger_field);
     }
 
     /**
@@ -174,17 +174,17 @@ jQuery( document ).ready( function ( $ ) {
      *
      * @param {string} field_id
      */
-    function apply_initial_condition( field_id ) {
+    function apply_initial_condition(field_id) {
 
-        var current_val = data[ field_id ];
+        var current_val = data[field_id];
         // if no value, let us check the dom for selected value
-            if ( current_val ) {
-                current_val = current_val.value;
-            } else {
+        if (current_val) {
+            current_val = current_val.value;
+        } else {
             //check dom for the value
-            var $field = $( '.' + field_id );
+            var $field = $('.' + field_id);
 
-            if ( $field.get( 0 ) ) {
+            if ($field.get(0)) {
 
                 if ($.inArray(field_id, multi_fields) === -1) {
                     // not a multi field.
@@ -193,16 +193,16 @@ jQuery( document ).ready( function ( $ ) {
                     // multi field.
                     current_val = $field.find('.input-options input:checked').val();
                 }
-            } else{
+            } else {
                 current_val = '';
             }
         }
 
-        if ( current_val === undefined ) {
+        if (current_val === undefined) {
             current_val = '';
         }
 
-        apply_trigger_change( current_val, conditional_fields[ field_id ] );
+        apply_trigger_change(current_val, conditional_fields[field_id]);
     }
 
     /**
@@ -211,12 +211,12 @@ jQuery( document ).ready( function ( $ ) {
      * @param val
      * @param trigger_field
      */
-    function apply_trigger_change( val, trigger_field ) {
+    function apply_trigger_change(val, trigger_field) {
         //if we are here, process the conditions
-        for ( var i = 0; i < trigger_field.conditions.length; i++ ) {
+        for (var i = 0; i < trigger_field.conditions.length; i++) {
             // apply each condition which depend on this field.
-            var condition = trigger_field.conditions[ i ];
-            var matched = is_match( val, condition.value, condition.operator );
+            var condition = trigger_field.conditions[i];
+            var matched = is_match(val, condition.value, condition.operator);
 
             show_hide_field(condition.field_id, condition.visibility, matched);
         }
@@ -234,26 +234,26 @@ jQuery( document ).ready( function ( $ ) {
      * @param {boolean} match reverses visibility condition
      * @returns {undefined}
      */
-    function show_hide_field( field_id, visibility, match ) {
+    function show_hide_field(field_id, visibility, match) {
         // we have the field id
         // so we can understand the behaviour of this field
-        var $el = $( '.field_' + field_id );
+        var $el = $('.field_' + field_id);
 
-        if ( ! $el.get( 0 ) ) {
-            console.log( 'Conditional Profile Fields: There seems to be some html issue and I am not able to fix it, Please tell that to the developer: field_id:' + field_id );
+        if (!$el.get(0)) {
+            console.log('Conditional Profile Fields: There seems to be some html issue and I am not able to fix it, Please tell that to the developer: field_id:' + field_id);
             return;
         }
 
-        if ( ! match ) {
+        if (!match) {
             // if the condition did not match, reverse visibility condition
-            if ( visibility == 'show' ) {
+            if (visibility == 'show') {
                 visibility = 'hide';
             } else {
                 visibility = 'show';
             }
         }
 
-        if ( visibility == 'show' ) {
+        if (visibility == 'show') {
             $el.show();
         } else {
             $el.hide();
@@ -268,17 +268,17 @@ jQuery( document ).ready( function ( $ ) {
      * @param {type} operator
      * @returns {Boolean}
      */
-    function is_match( selected_val, val, operator ) {
+    function is_match(selected_val, val, operator) {
         var values = [];
 
-        if ( ! jQuery.isArray( selected_val ) ) {
-            values.push( selected_val );
+        if (!jQuery.isArray(selected_val)) {
+            values.push(selected_val);
         } else {
             values = selected_val;//it is array
         }
 
-        for ( var i = 0; i < values.length; i++) {
-            if ( match_condition( values[i], val, operator ) ) {
+        for (var i = 0; i < values.length; i++) {
+            if (match_condition(values[i], val, operator)) {
                 return true; //bad coding I know
             }
         }
@@ -293,14 +293,18 @@ jQuery( document ).ready( function ( $ ) {
      * @param operator
      * @returns {boolean}
      */
-    function match_condition( current_val, val, operator ) {
+    function match_condition(current_val, val, operator) {
 
         var condition_matched = false;
-        switch ( operator ) {
+        switch (operator) {
 
             case '=':
-
-                if ( current_val == val ) {
+                if (Array.isArray(val)) {
+                    if (val.includes(current_val)) {
+                        condition_matched = true;
+                    }
+                }
+                else if (current_val == val) {
                     condition_matched = true;
                 }
 
@@ -308,7 +312,7 @@ jQuery( document ).ready( function ( $ ) {
 
             case '!=':
 
-                if ( current_val != val ) {
+                if (current_val != val) {
                     condition_matched = true;
                 }
 
@@ -316,7 +320,7 @@ jQuery( document ).ready( function ( $ ) {
 
             case '<=':
 
-                if ( current_val <= val ) {
+                if (current_val <= val) {
                     condition_matched = true;
                 }
 
@@ -324,7 +328,7 @@ jQuery( document ).ready( function ( $ ) {
 
             case '>=':
 
-                if ( current_val >= val ) {
+                if (current_val >= val) {
                     condition_matched = true;
                 }
 
@@ -332,7 +336,7 @@ jQuery( document ).ready( function ( $ ) {
 
             case '<':
 
-                if ( current_val < val ) {
+                if (current_val < val) {
                     condition_matched = true;
                 }
 
@@ -340,7 +344,7 @@ jQuery( document ).ready( function ( $ ) {
 
             case '>':
 
-                if ( current_val > val ) {
+                if (current_val > val) {
                     condition_matched = true;
                 }
 
