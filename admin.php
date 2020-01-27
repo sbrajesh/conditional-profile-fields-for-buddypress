@@ -302,7 +302,7 @@ class Devb_Conditional_Profile_Admin {
 							foreach ( $children as $child_field ) {
 								// cannot use the "checked" function from WP because it doesn't account for arrays
 								$checked = "";
-
+								
 								// if it isn't an array, convert it into one
 								if (!is_array($other_field_value)) $other_field_value = [$other_field_value];
 
@@ -310,6 +310,7 @@ class Devb_Conditional_Profile_Admin {
 									$checked = " checked=\"checked\" ";
 								}
 								$options .= "<label><input type='checkbox' value='{$child_field->id}'" . $checked . " name='xprofile-condition-other-field-value[]' />{$child_field->name}</label>";
+
 							}
 						} else {
 							$options = "<input type='text' name='xprofile-condition-other-field-value' id='xprofile-condition-other-field-value' class='xprofile-condition-other-field-value-single' value ='{$other_field_value}'; />";
