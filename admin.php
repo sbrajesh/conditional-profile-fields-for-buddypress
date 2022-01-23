@@ -318,7 +318,7 @@ class Devb_Conditional_Profile_Admin {
 			'fetch_fields' => true
 		) );
 
-		$html = '';
+		$html = "<option value='0'> " . _x( 'Select Field', 'Fild selection title in admin', 'conditional-profile-fields-for-bp' ) . "</option>";
 
 		foreach ( $groups as $group ) {
 			//if there are no fields in this group, no need to proceed further
@@ -326,7 +326,6 @@ class Devb_Conditional_Profile_Admin {
 				continue;
 			}
 
-			$html .= "<option value='0'> " . _x( 'Select Field', 'Fild selection title in admin', 'conditional-profile-fields-for-bp' ) . "</option>";
 			$html .= "<optgroup label ='{ $group->name }'>";
 
 			foreach ( $group->fields as $field ) {
