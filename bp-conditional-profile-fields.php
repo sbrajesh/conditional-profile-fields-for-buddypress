@@ -2,10 +2,14 @@
 /**
  * Plugin Name: Conditional Profile Fields for BuddyPress
  * Version: 1.2.4
- * Author: Brajesh Singh, Anu Sharma
+ * Author: BuddyDev
  * Plugin URI: https://buddydev.com/plugins/conditional-profile-fields-for-buddypress/
  * Author URI: https://buddydev.com
  * Description: Show/Hide profile fields depending on user data matching.
+ */
+
+/**
+ * Contributors: Brajesh Singh, Anu Sharma
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
