@@ -116,6 +116,22 @@ class Devb_Conditional_Profile_Admin {
 				bp_xprofile_update_field_meta( $field->id, 'xprofile_condition_other_field', $other_field_id );
 				bp_xprofile_update_field_meta( $field->id, 'xprofile_condition_operator', $operator );
 				bp_xprofile_update_field_meta( $field->id, 'xprofile_condition_other_field_value', $value );
+				$other_field = new BP_XProfile_Field( $other_field_id );
+                $children = $other_field->get_children();
+
+				if ( is_numeric( $value ) && ! empty( $children ) && ! in_array( $field->type, array(
+						'membertype',
+						'membertypes'
+					) ) ) {
+					// this is a multi option field, we should store the value.
+
+                    foreach ( $children as $child ) {
+                        if( $value == $child->id ) {
+	                        bp_xprofile_update_field_meta( $field->id, 'xprofile_condition_other_field_option_name',  $child->name );
+                            break;
+                        }
+                    }
+				}
 			}
 		}
 
@@ -229,6 +245,23 @@ class Devb_Conditional_Profile_Admin {
 	}
 
 	/**
+	 * Get other field value.
+	 *
+	 * @param int $field_id field id.
+	 *
+	 * @return mixed
+	 */
+	public function get_other_field_displayable_value( $field_id ) {
+		$option_value = bp_xprofile_get_meta( $field_id, 'field', 'xprofile_condition_other_field_option_name' );
+
+        if ( $option_value ) {
+			return $option_value;
+		}
+
+		return bp_xprofile_get_meta( $field_id, 'field', 'xprofile_condition_other_field_value' );
+	}
+
+	/**
 	 * Render Condition UI on Manage/Add new field page
 	 *
 	 * @param BP_XProfile_Field $field field object.
@@ -283,6 +316,7 @@ class Devb_Conditional_Profile_Admin {
                         $children = apply_filters( 'cpffb_admin_field_options', $children, $other_field );
 
 						if ( $children ) {
+							$children = bpc_profile_field_sanitize_child_options( $children );
 							//multi field
 							foreach ( $children as $child_field ) {
 								$options .= "<label><input type='radio' value='{$child_field->id}'" . checked( $other_field_value, $child_field->id, false ) . " name='xprofile-condition-other-field-value' />{$child_field->name}</label>";
@@ -348,7 +382,7 @@ class Devb_Conditional_Profile_Admin {
 
 					$children = $field->get_children();
 
-					$this->fields_info[ 'field_' . $field->id ]['options'] = $children;
+					$this->fields_info[ 'field_' . $field->id ]['options'] = bpc_profile_field_sanitize_child_options( $children );
 
 					//get all children and we will render the view to select one of these children
 				} else {
@@ -438,7 +472,7 @@ class Devb_Conditional_Profile_Admin {
 			$other_field = $other_field->name;
 		}
 		$operator  = $this->get_operator( $field->id );
-		$value     = $this->get_other_field_value( $field->id );
+		$value     = $this->get_other_field_displayable_value( $field->id );
 		$condition = "[ {$visibility} if {{$other_field}}  {$operator} {$value} ]";
 		echo '<span class="cpffbp-field-list">&nbsp;&nbsp;' . $condition . '</span>';
 	}

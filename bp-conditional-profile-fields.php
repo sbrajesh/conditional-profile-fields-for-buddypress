@@ -123,6 +123,7 @@ class Devb_Conditional_Xprofile_Field_Helper {
 	 */
 	public function load() {
 		require_once $this->path . 'admin.php';
+		require_once $this->path . 'functions.php';
 	}
 
 	/**
@@ -168,7 +169,7 @@ class Devb_Conditional_Xprofile_Field_Helper {
 				}
 
 				if ( ! empty( $children ) ) {
-					$this->fields[ 'field_' . $field->id ]['children'] = $children;
+					$this->fields[ 'field_' . $field->id ]['children'] = bpc_profile_field_sanitize_child_options( $children );
 				}
 
 				$related_id = $this->get_related_field_id( $field->id );
@@ -235,7 +236,6 @@ class Devb_Conditional_Xprofile_Field_Helper {
 		return $data;
 	}
 
-
 	/**
 	 * Get the condition applied on a field
 	 *
@@ -261,6 +261,8 @@ class Devb_Conditional_Xprofile_Field_Helper {
 		$children = $related_field->get_children();
 
 		if ( ! empty( $children ) ) {
+			$children = bpc_profile_field_sanitize_child_options($children );
+			$match = false;
 			// if yes, we need to replace the value(as the value is id of the child option)
 			// with the name of the child option.
 			foreach ( $children as $child ) {
@@ -268,7 +270,16 @@ class Devb_Conditional_Xprofile_Field_Helper {
 				if ( $child->id == $value ) {
 
 					$value = stripslashes( $child->name );
+					$match = true;
 					break;
+				}
+			}
+
+			if ( ! $match ) {
+				$option_value = bp_xprofile_get_meta( $field_id, 'field', 'xprofile_condition_other_field_option_name' );
+
+				if ( $option_value ) {
+					$value = stripslashes( $option_value );
 				}
 			}
 		}
