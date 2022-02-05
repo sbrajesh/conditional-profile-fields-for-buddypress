@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Conditional Profile Fields for BuddyPress
- * Version: 1.2.4
+ * Version: 1.2.5
  * Author: BuddyDev
  * Plugin URI: https://buddydev.com/plugins/conditional-profile-fields-for-buddypress/
  * Author URI: https://buddydev.com
