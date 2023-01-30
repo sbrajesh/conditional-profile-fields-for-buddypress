@@ -513,6 +513,30 @@ class Devb_Conditional_Xprofile_Field_Helper {
 
 	}
 
+	/**
+	 * Clear data on plugin delete.
+	 */
+	public static function uninstall() {
+
+		global $wpdb;
+		$field_meta_keys = array(
+			'xprofile_condition_display',
+			'xprofile_condition_other_field',
+			'xprofile_condition_operator',
+			'xprofile_condition_other_field_value',
+		);
+
+		$prepared_keys = array();
+		foreach ( $field_meta_keys as $key ) {
+			$prepared_keys[] = $wpdb->prepare( '%s', $key );
+		}
+		$meta_keys = join( ',', $prepared_keys );
+
+		$table = buddypress()->profile->table_name_meta;
+		$wpdb->query( $wpdb->prepare( "DELETE FROM {$table} WHERE object_type=%s AND meta_key IN ($meta_keys)", 'field' ) );
+	}
 }
 
 Devb_Conditional_Xprofile_Field_Helper::get_instance();
+// unintsllation routine.
+register_uninstall_hook( __FILE__, array( 'Devb_Conditional_Xprofile_Field_Helper', 'uninstall' ) );
