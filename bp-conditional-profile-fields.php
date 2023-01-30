@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Conditional Profile Fields for BuddyPress
- * Version: 1.2.5
+ * Version: 1.2.6
  * Author: BuddyDev
  * Plugin URI: https://buddydev.com/plugins/conditional-profile-fields-for-buddypress/
  * Author URI: https://buddydev.com
@@ -12,9 +12,9 @@
  * Contributors: Brajesh Singh, Anu Sharma
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit( 0 );
-}
+// Do not allow direct access over web.
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Class name explanation
  * 'Devb' is the string that we have started using for any code form BuddyDev( DevB in reverseorder)
