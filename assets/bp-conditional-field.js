@@ -14,62 +14,25 @@ jQuery( document ).ready( function ( $ ) {
 	var multi_fields = []; // radio, checkboxes
 	// fields having select boxes.
 	var select_fields = [];
+	// looper.
+	var i = 0;
 
-	//Build the fields, multi fields array.
-	for ( var field_id in conditional_fields ) {
-
-		if ( ! conditional_fields.hasOwnProperty( field_id ) ) {
-			continue;
+	// on dom ready.
+	prepare_fields();
+	// for BuddyBoss registration page.
+	$(document).ajaxComplete(function (event, request, settings) {
+		if (typeof (settings.url) !== 'undefined' && (settings.url.indexOf('xprofile_get_field') != -1)) {
+			prepare_fields();
 		}
+	});
 
-		var $field = $( '.' + field_id );
-
-		if ( $field.get( 0 ) ) {
-			// continue;// the field does not exist on this page.
-			// store the field id as a data attribute.
-			$field.data( 'cpfb-field-id', field_id );
-		}
-
-
-		var field = all_fields[field_id];
-
-		// must be a valid existing field and supported too.
-		if ( ! field || field['type'] === 'datebox' || field['type'] === 'birthdate') {
-			continue;
-		}
-
-		var field_type = field['type'];
-
-		var found = true; // assume we found the field type.
-
-		if ( $field.find( '.input-options' ).get( 0 ) || $.inArray( field_type, ['radiobutton', 'checkbox'] ) !== -1 ) {
-			// radio or checkbox.
-			multi_fields.push( field_id );
-		} else if ( $field.find( 'select' ).get( 0 ) || $.inArray( field_type, ['selectbox', 'multiselectbox'] ) !== -1 ) {
-			// select or multi select field.
-			select_fields.push( field_id );
-		} else if ( $.inArray( field_type, [ 'textbox', 'textarea', 'url', 'web', 'number', 'decimal_number', 'number_minmax', 'email', 'color' ] ) !== -1 ) {
-			fields.push( field_id );
-		} else {
-			found = false;
-		}
-
-		if ( ! found ) {
-			// detect field type if possible.
-
-			console.log( "Unable to understand field id:" + field_id );
-			// we were unable to understand the field type and field.
-			// need to check extra. here?
-			// @todo in future.
-		}
-	}
 	// We have separated the triggers into 3 group.
 	// now we will need to setup triggers and apply initial condition.
 
 	// Step 1: Setup triggers.
 	// Set trigger for simple fields.
 	var simple_field_selectors = [];
-	for ( var i = 0; i < fields.length; i++) {
+	for ( i = 0; i < fields.length; i++ ) {
 		simple_field_selectors.push( '#' + fields[i] );
 	}
 
@@ -82,7 +45,7 @@ jQuery( document ).ready( function ( $ ) {
 
 	// 1.B Set trigger for radio, checkboxes.
 	var multifield_selectors = []; // reset.
-	for ( var i = 0; i < multi_fields.length; i++ ) {
+	for ( i = 0; i < multi_fields.length; i++ ) {
 		multifield_selectors.push( '.' + multi_fields[i] + ' .input-options input' );
 	}
 
@@ -94,7 +57,7 @@ jQuery( document ).ready( function ( $ ) {
 
 	// 1.C Set trigger for select fields.
 	var select_fields_selectors = [];
-	for ( var i = 0; i < select_fields.length; i++ ) {
+	for ( i = 0; i < select_fields.length; i++ ) {
 		select_fields_selectors.push( '.' + select_fields[i] + ' select' );
 	}
 
@@ -109,21 +72,77 @@ jQuery( document ).ready( function ( $ ) {
 
 	// 2.A simple field.
 	// test only after has_data??
-	for ( var i = 0; i < fields.length; i++ ) {
+	for ( i = 0; i < fields.length; i++ ) {
 		apply_initial_condition( fields[ i ] );
 	}
 
 	// 2.B Multi Field.
-	for ( var i = 0; i < multi_fields.length; i++ ) {
+	for ( i = 0; i < multi_fields.length; i++ ) {
 		apply_initial_condition( multi_fields[ i ] );
 	}
 
 	// 2.C Select fields.
-	for ( var i = 0; i < select_fields.length; i++ ) {
+	for ( i = 0; i < select_fields.length; i++ ) {
 		apply_initial_condition( select_fields[ i ] );
 	}
 
+	// Prepares fields/data.
+	function prepare_fields() {
+		// reset fields from top level scope.
+		fields        = [];
+		multi_fields  = [];
+		select_fields = [];
 
+		var field_id, field, field_type, found,  $field;
+		// Build the fields, multi fields array.
+		for ( field_id in conditional_fields ) {
+
+			if ( ! conditional_fields.hasOwnProperty( field_id ) ) {
+				continue;
+			}
+
+			$field = $( '.' + field_id );
+
+			if ( $field.get( 0 ) ) {
+				// continue;// the field does not exist on this page.
+				// store the field id as a data attribute.
+				$field.data( 'cpfb-field-id', field_id );
+			}
+
+
+			field = all_fields[field_id];
+
+			// must be a valid existing field and supported too.
+			if ( ! field || field['type'] === 'datebox' || field['type'] === 'birthdate') {
+				continue;
+			}
+
+			field_type = field['type'];
+
+			found = true; // assume we found the field type.
+
+			if ( $field.find( '.input-options' ).get( 0 ) || $.inArray( field_type, ['radiobutton', 'checkbox'] ) !== -1 ) {
+				// radio or checkbox.
+				multi_fields.push( field_id );
+			} else if ( $field.find( 'select' ).get( 0 ) || $.inArray( field_type, ['selectbox', 'multiselectbox'] ) !== -1 ) {
+				// select or multi select field.
+				select_fields.push( field_id );
+			} else if ( $.inArray( field_type, [ 'textbox', 'textarea', 'url', 'web', 'number', 'decimal_number', 'number_minmax', 'email', 'color' ] ) !== -1 ) {
+				fields.push( field_id );
+			} else {
+				found = false;
+			}
+
+			if ( ! found ) {
+				// detect field type if possible.
+
+				console.log( "Unable to understand field id:" + field_id );
+				// we were unable to understand the field type and field.
+				// need to check extra. here?
+				// @todo in future.
+			}
+		}
+	}
 	/**
 	 * Applies a condition to the field
 	 *
@@ -216,7 +235,7 @@ jQuery( document ).ready( function ( $ ) {
 		for ( var i = 0; i < trigger_field.conditions.length; i++ ) {
 			// apply each condition which depend on this field.
 			var condition = trigger_field.conditions[ i ];
-			var matched = is_match( val, condition.value, condition.operator );
+			var matched   = is_match( val, condition.value, condition.operator );
 
 			show_hide_field( condition.field_id, condition.visibility, matched );
 		}
@@ -267,7 +286,7 @@ jQuery( document ).ready( function ( $ ) {
 	 * @param {type} operator
 	 * @returns {Boolean}
 	 */
-	function is_match( selected_val, val, operator ) {
+	function is_match( selected_val, val, operator) {
 		var values = [];
 
 		if ( ! jQuery.isArray( selected_val ) ) {
@@ -276,7 +295,7 @@ jQuery( document ).ready( function ( $ ) {
 			values = selected_val; // it is array.
 		}
 
-		for ( var i = 0; i < values.length; i++) {
+		for ( var i = 0; i < values.length; i++ ) {
 			if ( match_condition( values[i], val, operator ) ) {
 				return true; // bad coding I know.
 			}
@@ -288,7 +307,7 @@ jQuery( document ).ready( function ( $ ) {
 	/**
 	 * Check if the current value and the actual value satisfies the condition imposed by 'operator'
 	 *
-     * @param current_val
+	 * @param current_val
 	 * @param val
 	 * @param operator
 	 * @returns {boolean}
