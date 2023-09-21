@@ -447,7 +447,14 @@ class Devb_Conditional_Profile_Admin {
 	 */
 	public function is_admin() {
 
-		if ( ! defined( 'DOING_AJAX' ) && is_admin() && ( get_current_screen()->id == 'users_page_bp-profile-setup' || get_current_screen()->id == 'users_page_bp-profile-setup-network' ) ) {
+		if ( ! is_admin() || defined( 'DOING_AJAX' ) ) {
+			return false;
+		}
+
+		if ( get_current_screen()->id == 'users_page_bp-profile-setup'
+             || get_current_screen()->id == 'users_page_bp-profile-setup-network'
+             || get_current_screen()->id == 'buddyboss_page_bp-profile-setup'
+        ) {
 			return true;
 		}
 
