@@ -20,7 +20,7 @@ class Devb_Conditional_Profile_Admin {
 	 * @var array
 	 */
 	private $fields_info;
-    
+
 	/**
      * Plugin path.
      *
