@@ -506,7 +506,7 @@ class Devb_Conditional_Xprofile_Field_Helper {
 		if ( $data && is_array( $data ) ) {
 			$data = array_map( 'html_entity_decode', $data );
 		} elseif ( $data ) {
-			$data = html_entity_decode( $data );
+			$data = html_entity_decode( $data, ENT_QUOTES|ENT_SUBSTITUTE );
 		}
 
 		return $data;
