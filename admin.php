@@ -20,6 +20,21 @@ class Devb_Conditional_Profile_Admin {
 	 * @var array
 	 */
 	private $fields_info;
+    
+	/**
+     * Plugin path.
+     *
+	 * @var string
+	 */
+    private $path;
+
+	/**
+     *
+     * Plugin url.
+     *
+	 * @var string
+	 */
+    private $url;
 
 	/**
 	 * Operator.
